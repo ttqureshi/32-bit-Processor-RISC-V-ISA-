@@ -35,8 +35,9 @@ Simulation creates a ``` .vcd ``` file. This files contains all the simulation b
 To view the waveform of the design run the command:
 
 ```
-gtkwave dumfile_name.vcd
+gtkwave dumpfile_name.vcd
 ```
+Here dumpfile_name will be ```processor.vcd```
 
 This opens a waveform window. Pull the required signals in the waveform and verify the behaviour of the design.
 
