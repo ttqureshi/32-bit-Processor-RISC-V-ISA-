@@ -8,10 +8,9 @@ module mux_2x1
 
     always_comb
     begin
-        if (sel_b)
-        opr_b = imm_val;
-        else
-        opr_b = rdata2;
+        case (sel_b)
+            1: opr_b = imm_val;
+            0: opr_b = rdata2;
     end
 
 endmodule
