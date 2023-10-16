@@ -10,7 +10,8 @@ module mux_2x1
     begin
         case (sel_b)
             1: opr_b = imm_val;
-            0: opr_b = rdata2;
+            default: opr_b = rdata2;
+        endcase
     end
 
 endmodule
