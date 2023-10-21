@@ -47,8 +47,7 @@ module processor
         .rd    ( rd             ),
         .opcode( opcode         ),
         .funct3( funct3         ),
-        .funct7( funct7         ),
-        .imm   ( imm            )
+        .funct7( funct7         )
     );
 
     // register file
@@ -67,9 +66,8 @@ module processor
     // immediate generator
     imm_gen imm_gen_i
     (
-        .imm    ( imm ),
-        .funct3 ( funct3 ),
-        .imm_val( imm_val )
+        .inst   ( inst          ),
+        .imm_val( imm_val       )
     );
 
     // mux_2x1

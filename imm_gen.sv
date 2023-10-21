@@ -1,20 +1,19 @@
 module imm_gen
 (
-    input  logic [11:0] imm,
-    input  logic [ 2:0] funct3,
+    input  logic [31:0] inst,
     output logic [31:0] imm_val
 );
 
     always_comb
     begin
-        case (funct3)
-            3'b011: imm_val = {20'b0,imm}; // SLTIU (SetLessThanImmUnsigned) doing zero-extension since the operation is for unsigned immediate
-            3'b101: imm_val = {{27{imm[4]}},imm[4:0]};
-            default: 
-            begin
-                imm_val = {{20{imm[4]}},imm};
-            end
+        case(inst[14:12])
+        3'b011: imm_val = {20'b0,inst[31:20]}; // SLTIU (SetLessThanImmUnsigned) doing zero-extension since the operation is for unsigned immediate
+        3'b101: imm_val = {{27{inst[24]}},inst[24:20]};
+        default:
+        begin
+            imm_val = {{20{inst[24]}},inst[31:20]};
+        end
         endcase
     end
-    
+
 endmodule
