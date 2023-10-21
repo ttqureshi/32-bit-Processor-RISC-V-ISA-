@@ -1,16 +1,16 @@
 module mux_2x1
 (
-    input  logic [31:0] rdata2,
-    input  logic [31:0] imm_val,
-    input  logic        sel_b,
-    output logic [31:0] opr_b
+    input  logic [31:0] in_1,
+    input  logic [31:0] in_2,
+    input  logic        select_line,
+    output logic [31:0] out
 );
 
     always_comb
     begin
-        case (sel_b)
-            1: opr_b = imm_val;
-            default: opr_b = rdata2;
+        case (select_line)
+            1: out = in_2;
+            default: out = in_1;
         endcase
     end
 

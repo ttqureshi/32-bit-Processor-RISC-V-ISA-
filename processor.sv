@@ -71,12 +71,12 @@ module processor
     );
 
     // mux_2x1
-    mux_2x1 mux_2x1_i
+    mux_2x1 mux_2x1_alu_opr_b
     (
-        .rdata2 (rdata2),
-        .imm_val(imm_val),
-        .sel_b  (sel_b),
-        .opr_b  (opr_b)
+        .in_1           ( rdata2  ),
+        .in_2           ( imm_val ),
+        .select_line    ( sel_b   ),
+        .out            ( opr_b   )
     );
 
     // controller
