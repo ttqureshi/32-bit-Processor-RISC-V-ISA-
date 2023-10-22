@@ -7,6 +7,7 @@ module processor
     logic        rf_en;
     logic        sel_b;
     logic [31:0] pc_out;
+    logic [31:0] new_pc;
     logic [31:0] inst;
     logic [ 4:0] rd;
     logic [ 4:0] rs1;
