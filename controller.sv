@@ -3,25 +3,32 @@ module controller
     input  logic [6:0] opcode,
     input  logic [6:0] funct7,
     input  logic [2:0] funct3,
+    input  logic       br_taken, // form br_cond block
     output logic [3:0] aluop,
     output logic       rf_en,  // control signal for write operation in register file
+    output logic       sel_a,  // control signal to opr_a select MUX to ALU
     output logic       sel_b,  // control signal to opr_b select MUX to ALU
     output logic       rd_en,  // contorl signal for reading from data memory
     output logic       wr_en,  // control signal for writing into data memory
     output logic       wb_sel, // control signal for writeback MUX
-    output logic [2:0] mem_acc_mode
+    output logic [2:0] mem_acc_mode,
+    output logic [2:0] br_type, // goes to branch cond block to tell which comparison to perform
+    output logic       br_taken // to program counter MUX
 );
     always_comb
     begin
         case(opcode)
             7'b0110011: //R-Type
             begin
-                rf_en  = 1'b1;
-                sel_b  = 1'b0;
-                rd_en  = 1'b0;
-                wb_sel = 1'b0;
-                wr_en  = 1'b0;
+                rf_en        = 1'b1;
+                sel_a        = 1'b1;
+                sel_b        = 1'b0;
+                rd_en        = 1'b0;
+                wb_sel       = 1'b0;
+                wr_en        = 1'b0;
+                br_taken     = 1'b0;
                 mem_acc_mode = 3'b111;
+                br_type      = 3'b111;
                 case(funct3)
                     3'b000: 
                     begin
@@ -47,12 +54,15 @@ module controller
             end
             7'b0010011: // I-type - Data processing
             begin
-                rf_en  = 1'b1;
-                sel_b  = 1'b1;
-                rd_en  = 1'b0;
-                wb_sel = 1'b0;
-                wr_en  = 1'b0;
+                rf_en        = 1'b1;
+                sel_a        = 1'b1;
+                sel_b        = 1'b1;
+                rd_en        = 1'b0;
+                wb_sel       = 1'b0;
+                wr_en        = 1'b0;
+                br_taken     = 1'b0;
                 mem_acc_mode = 3'b111;
+                br_type      = 3'b111;
                 case (funct3)
                     3'b000: aluop = 4'b0000; //ADDI
                     3'b010: aluop = 4'b0011; //SLTI
@@ -72,12 +82,15 @@ module controller
             end
             7'b0000011: // I-type - Load Instructions
             begin
-                rf_en  = 1'b1;
-                sel_b  = 1'b1;
-                rd_en  = 1'b1;
-                wb_sel = 1'b1;
-                wr_en  = 1'b0;
-                aluop = 4'b0000; // aluop is always addition in case of load instructions
+                rf_en    = 1'b1;
+                sel_a    = 1'b1;
+                sel_b    = 1'b1;
+                rd_en    = 1'b1;
+                wb_sel   = 1'b1;
+                wr_en    = 1'b0;
+                br_taken = 1'b0;
+                aluop    = 4'b0000; // aluop is always addition in case of load instructions
+                br_type  = 3'b111;
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
                     3'b001: mem_acc_mode = 3'b001; // Halfword access
@@ -88,26 +101,44 @@ module controller
             end
             7'b0100011: // S-type - Store Instructions
             begin
-                rf_en  = 1'b0;
-                sel_b  = 1'b1;
-                rd_en  = 1'b0;
-                wb_sel = 1'b0;  // in this case it is don't care because rf_en = 1'b0
-                wr_en  = 1'b1;
-                aluop = 4'b0000; // aluop is always addition in case of store instructions
+                rf_en    = 1'b0;
+                sel_a    = 1'b1;
+                sel_b    = 1'b1;
+                rd_en    = 1'b0;
+                wb_sel   = 1'b0;  // in this case it is don't care because rf_en = 1'b0
+                wr_en    = 1'b1;
+                br_taken = 1'b0;
+                aluop    = 4'b0000; // aluop is always addition in case of store instructions
+                br_type  = 3'b111;
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
                     3'b001: mem_acc_mode = 3'b001; // Halfword access
                     3'b010: mem_acc_mode = 3'b010; // Word access
                 endcase
             end
+            7'b1100011: // B-type
+            begin
+                rf_en    = 1'b0;
+                sel_a    = 1'b0;
+                sel_b    = 1'b1;
+                rd_en    = 1'b0;
+                wb_sel   = 1'b0; // in this case it is don't care because rf_en = 1'b0
+                wr_en    = 1'b0;
+                aluop    = 4'b0000; // aluop is always addition in case of branch instructions
+                br_type  = funct3;
+                br_taken = br_taken;
+            end
             default:
             begin
-                rf_en = 1'b0;
-                sel_b = 1'b0;
-                rd_en = 1'b0;
-                wb_sel= 1'b0;
-                wr_en = 1'b0;
+                rf_en        = 1'b0;
+                sel_a        = 1'b1;
+                sel_b        = 1'b0;
+                rd_en        = 1'b0;
+                wb_sel       = 1'b0;
+                wr_en        = 1'b0;
+                br_taken     = 1'b0;
                 mem_acc_mode = 3'b111;
+                br_type      = 3'b111;
             end
         endcase
     end

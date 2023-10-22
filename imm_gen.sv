@@ -16,8 +16,12 @@ module imm_gen
                     imm_val = {{20{inst[24]}},inst[31:20]};
                 end
                 endcase
+            
             7'b0100011: // S-type
                 imm_val = $signed({inst[31:25], inst[11:7]});
+            
+            7'b1100011 // B-type
+                imm_val = $signed({inst[31],inst[7],inst[30:25],inst[11:8],1'b0});
         endcase
     end
 

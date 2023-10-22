@@ -16,6 +16,7 @@ module processor
     logic [ 6:0] funct7;
     logic [31:0] rdata1;
     logic [31:0] rdata2;
+    logic [31:0] opr_a;
     logic [31:0] opr_b;
     logic [31:0] opr_res;
     logic [11:0] imm;
@@ -26,14 +27,26 @@ module processor
     logic        rd_en;
     logic        wr_en;
     logic        wb_sel;
+    logic        br_taken;
+    logic [2:0]  br_type;
     logic [ 2:0] mem_acc_mode;
+
+
+    // PC MUX
+    mux_2x1 mux_2x1_pc
+    (
+        .in_0        ( pc_out + 32'd4 ),
+        .in_1        ( opr_res        ),
+        .select_line ( br_taken       ),
+        .out         ( new_pc         )
+    );
 
     // program counter
     pc pc_i
     (
         .clk   ( clk            ),
         .rst   ( rst            ),
-        .pc_in ( pc_out + 32'd4 ),
+        .pc_in ( new_pc         ),
         .pc_out( pc_out         )
     );
 
@@ -76,7 +89,17 @@ module processor
         .imm_val( imm_val       )
     );
 
-    // mux_2x1
+    // ALU opr_a MUX
+
+    mux_2x1 mux_2x1_alu_opr_a
+    (
+        .in_0           ( pc_out  ),
+        .in_1           ( rdata1  ),
+        .select_line    ( sel_a   ),
+        .out            ( opr_a   )
+    );
+
+    // ALU opr_b MUX
     mux_2x1 mux_2x1_alu_opr_b
     (
         .in_0           ( rdata2  ),
@@ -90,7 +113,7 @@ module processor
     alu alu_i
     (
         .aluop   ( aluop          ),
-        .opr_a   ( rdata1         ),
+        .opr_a   ( opr_a          ),
         .opr_b   ( opr_b          ),
         .opr_res ( opr_res        )
     );
@@ -108,6 +131,7 @@ module processor
     );
 
 
+    // Writeback MUX
     mux_2x1 wb_mux
     (
         .in_0           ( opr_res ),
@@ -123,13 +147,17 @@ module processor
         .opcode         ( opcode         ),
         .funct3         ( funct3         ),
         .funct7         ( funct7         ),
+        .br_taken       ( br_taken       ),
         .aluop          ( aluop          ),
         .rf_en          ( rf_en          ),
+        .sel_a          ( sel_a          ),
         .sel_b          ( sel_b          ),
         .rd_en          ( rd_en          ),
+        .wr_en          ( wr_en          ),
         .wb_sel         ( wb_sel         ),
         .mem_acc_mode   ( mem_acc_mode   ),
-        .wr_en          ( wr_en          )
+        .br_type        ( br_type        ),
+        .br_taken       ( br_taken       )
     );
 
     
