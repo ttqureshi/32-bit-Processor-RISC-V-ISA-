@@ -140,6 +140,18 @@ module controller
                 br_type  = 3'b111;
                 br_take  = 1'b0;
             end
+            7'b0010111: // U-type (AUIPC)
+            begin
+                rf_en    = 1'b1;
+                sel_a    = 1'b0;
+                sel_b    = 1'b1;
+                rd_en    = 1'b0;
+                wb_sel   = 1'b0;
+                wr_en    = 1'b0;
+                aluop    = 4'b0000;
+                br_type  = 3'b111;
+                br_take  = 1'b0;
+            end
             default:
             begin
                 rf_en        = 1'b0;

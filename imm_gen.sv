@@ -22,7 +22,7 @@ module imm_gen
             
             7'b1100011: // B-type
                 imm_val = $signed({inst[31], inst[7], inst[30:25], inst[11:8], 1'b0});
-            7'b0110111: // U-type (LUI)
+            7'b0110111: // U-type
                 imm_val = {inst[31:12],12'b0};
         endcase
     end
