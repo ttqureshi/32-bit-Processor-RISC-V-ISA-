@@ -7,6 +7,7 @@ module controller
     output logic       rf_en,  // control signal for write operation in register file
     output logic       sel_b,  // control signal to opr_b select MUX to ALU
     output logic       rd_en,  // contorl signal for reading from data memory
+    output logic       wr_en,  // control signal for writing into data memory
     output logic       wb_sel, // control signal for writeback MUX
     output logic [2:0] mem_acc_mode
 );
@@ -19,6 +20,7 @@ module controller
                 sel_b  = 1'b0;
                 rd_en  = 1'b0;
                 wb_sel = 1'b0;
+                wr_en  = 1'b0;
                 mem_acc_mode = 3'b111;
                 case(funct3)
                     3'b000: 
@@ -49,6 +51,7 @@ module controller
                 sel_b  = 1'b1;
                 rd_en  = 1'b0;
                 wb_sel = 1'b0;
+                wr_en  = 1'b0;
                 mem_acc_mode = 3'b111;
                 case (funct3)
                     3'b000: aluop = 4'b0000; //ADDI
@@ -69,10 +72,11 @@ module controller
             end
             7'b0000011: // I-type - Load Instructions
             begin
-                rd_en  = 1'b1;
                 rf_en  = 1'b1;
                 sel_b  = 1'b1;
+                rd_en  = 1'b1;
                 wb_sel = 1'b1;
+                wr_en  = 1'b0;
                 aluop = 4'b0000; // aluop is always addition in case of load instructions
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
@@ -82,12 +86,27 @@ module controller
                     3'b101: mem_acc_mode = 3'b100; // Halfword unsigned access
                 endcase
             end
+            7'b0100011: // S-type - Store Instructions
+            begin
+                rf_en  = 1'b0;
+                sel_b  = 1'b1;
+                rd_en  = 1'b0;
+                wb_sel = 1'b0;  // in this case it is don't care because rf_en = 1'b0
+                wr_en  = 1'b1;
+                aluop = 4'b0000; // aluop is always addition in case of store instructions
+                case(funct3)
+                    3'b000: mem_acc_mode = 3'b000; // Byte access
+                    3'b001: mem_acc_mode = 3'b001; // Halfword access
+                    3'b010: mem_acc_mode = 3'b010; // Word access
+                endcase
+            end
             default:
             begin
                 rf_en = 1'b0;
                 sel_b = 1'b0;
                 rd_en = 1'b0;
                 wb_sel= 1'b0;
+                wr_en = 1'b0;
                 mem_acc_mode = 3'b111;
             end
         endcase

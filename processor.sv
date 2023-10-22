@@ -24,6 +24,7 @@ module processor
     logic [3 :0] aluop;
     logic [31:0] rdata;
     logic        rd_en;
+    logic        wr_en;
     logic        wb_sel;
     logic [ 2:0] mem_acc_mode;
 
@@ -99,8 +100,10 @@ module processor
     (
         .clk            ( clk          ),
         .rd_en          ( rd_en        ),
+        .wr_en          ( wr_en        ),
         .addr           ( opr_res      ),
         .mem_acc_mode   ( mem_acc_mode ),
+        .rdata2         ( rdata2       ),
         .rdata          ( rdata        )
     );
 
@@ -125,7 +128,8 @@ module processor
         .sel_b          ( sel_b          ),
         .rd_en          ( rd_en          ),
         .wb_sel         ( wb_sel         ),
-        .mem_acc_mode   ( mem_acc_mode   )
+        .mem_acc_mode   ( mem_acc_mode   ),
+        .wr_en          ( wr_en          )
     );
 
     

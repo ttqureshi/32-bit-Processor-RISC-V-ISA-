@@ -6,13 +6,18 @@ module imm_gen
 
     always_comb
     begin
-        case(inst[14:12])
-        3'b011: imm_val = {20'b0,inst[31:20]}; // SLTIU (SetLessThanImmUnsigned) doing zero-extension since the operation is for unsigned immediate
-        3'b101: imm_val = {{27{inst[24]}},inst[24:20]};
-        default:
-        begin
-            imm_val = {{20{inst[24]}},inst[31:20]};
-        end
+        case (inst[6:0])
+            7'b0010011: // I-type
+                case(inst[14:12])
+                3'b011: imm_val = {20'b0,inst[31:20]}; // SLTIU (SetLessThanImmUnsigned) doing zero-extension since the operation is for unsigned immediate
+                3'b101: imm_val = {{27{inst[24]}},inst[24:20]};
+                default:
+                begin
+                    imm_val = {{20{inst[24]}},inst[31:20]};
+                end
+                endcase
+            7'b0100011: // S-type
+                imm_val = $signed({inst[31:25], inst[11:7]});
         endcase
     end
 
