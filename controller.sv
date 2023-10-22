@@ -13,7 +13,7 @@ module controller
     output logic       wb_sel, // control signal for writeback MUX
     output logic [2:0] mem_acc_mode,
     output logic [2:0] br_type, // goes to branch cond block to tell which comparison to perform
-    output logic       br_taken // to program counter MUX
+    output logic       br_take // to program counter MUX
 );
     always_comb
     begin
@@ -26,7 +26,7 @@ module controller
                 rd_en        = 1'b0;
                 wb_sel       = 1'b0;
                 wr_en        = 1'b0;
-                br_taken     = 1'b0;
+                br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
                 br_type      = 3'b111;
                 case(funct3)
@@ -60,7 +60,7 @@ module controller
                 rd_en        = 1'b0;
                 wb_sel       = 1'b0;
                 wr_en        = 1'b0;
-                br_taken     = 1'b0;
+                br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
                 br_type      = 3'b111;
                 case (funct3)
@@ -88,7 +88,7 @@ module controller
                 rd_en    = 1'b1;
                 wb_sel   = 1'b1;
                 wr_en    = 1'b0;
-                br_taken = 1'b0;
+                br_take  = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of load instructions
                 br_type  = 3'b111;
                 case(funct3)
@@ -107,7 +107,7 @@ module controller
                 rd_en    = 1'b0;
                 wb_sel   = 1'b0;  // in this case it is don't care because rf_en = 1'b0
                 wr_en    = 1'b1;
-                br_taken = 1'b0;
+                br_take  = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of store instructions
                 br_type  = 3'b111;
                 case(funct3)
@@ -126,9 +126,10 @@ module controller
                 wr_en    = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of branch instructions
                 br_type  = funct3;
-                br_taken = br_taken;
+                br_take = br_taken;
             end
             7'b0110111: // U-type (LUI)
+            begin
                 rf_en    = 1'b1;
                 sel_a    = 1'b0; //it's actually don't care bcz we don't need opr_a
                 sel_b    = 1'b1;
@@ -137,7 +138,8 @@ module controller
                 wr_en    = 1'b0;
                 aluop    = 4'b1010;
                 br_type  = 3'b111;
-                br_taken = 1'b0;
+                br_take  = 1'b0;
+            end
             default:
             begin
                 rf_en        = 1'b0;
@@ -146,7 +148,7 @@ module controller
                 rd_en        = 1'b0;
                 wb_sel       = 1'b0;
                 wr_en        = 1'b0;
-                br_taken     = 1'b0;
+                br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
                 br_type      = 3'b111;
             end

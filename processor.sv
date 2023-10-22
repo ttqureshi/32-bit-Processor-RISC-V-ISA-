@@ -158,7 +158,7 @@ module processor
         .wb_sel         ( wb_sel         ),
         .mem_acc_mode   ( mem_acc_mode   ),
         .br_type        ( br_type        ),
-        .br_taken       ( br_taken       )
+        .br_take        ( br_taken       )
     );
 
     
