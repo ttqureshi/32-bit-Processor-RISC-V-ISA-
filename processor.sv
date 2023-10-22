@@ -17,10 +17,15 @@ module processor
     logic [31:0] rdata1;
     logic [31:0] rdata2;
     logic [31:0] opr_b;
+    logic [31:0] opr_res;
     logic [11:0] imm;
     logic [31:0] imm_val;
     logic [31:0] wdata;
     logic [3 :0] aluop;
+    logic [31:0] rdata;
+    logic        rd_en;
+    logic        wb_sel;
+    logic [ 2:0] mem_acc_mode;
 
     // program counter
     pc pc_i
@@ -73,22 +78,12 @@ module processor
     // mux_2x1
     mux_2x1 mux_2x1_alu_opr_b
     (
-        .in_1           ( rdata2  ),
-        .in_2           ( imm_val ),
+        .in_0           ( rdata2  ),
+        .in_1           ( imm_val ),
         .select_line    ( sel_b   ),
         .out            ( opr_b   )
     );
 
-    // controller
-    controller controller_i
-    (
-        .opcode( opcode         ),
-        .funct3( funct3         ),
-        .funct7( funct7         ),
-        .aluop ( aluop          ),
-        .rf_en ( rf_en          ),
-        .sel_b ( sel_b          )
-    );
 
     // alu
     alu alu_i
@@ -96,7 +91,42 @@ module processor
         .aluop   ( aluop          ),
         .opr_a   ( rdata1         ),
         .opr_b   ( opr_b          ),
-        .opr_res ( wdata          )
+        .opr_res ( opr_res        )
     );
+
+
+    data_mem data_mem_i
+    (
+        .clk            ( clk          ),
+        .rd_en          ( rd_en        ),
+        .addr           ( opr_res      ),
+        .mem_acc_mode   ( mem_acc_mode ),
+        .rdata          ( rdata        )
+    );
+
+
+    mux_2x1 wb_mux
+    (
+        .in_0           ( opr_res ),
+        .in_1           ( rdata   ),
+        .select_line    ( wb_sel  ),
+        .out            ( wdata   )
+    );
+
+
+    // controller
+    controller controller_i
+    (
+        .opcode         ( opcode         ),
+        .funct3         ( funct3         ),
+        .funct7         ( funct7         ),
+        .aluop          ( aluop          ),
+        .rf_en          ( rf_en          ),
+        .sel_b          ( sel_b          ),
+        .rd_en          ( rd_en          ),
+        .wb_sel         ( wb_sel         ),
+        .mem_acc_mode   ( mem_acc_mode   )
+    );
+
     
 endmodule
