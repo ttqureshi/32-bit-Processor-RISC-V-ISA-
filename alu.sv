@@ -19,6 +19,7 @@ module alu
             // 4'b0111: opr_res = opr_a + opr_b; // SRA to be discussed
             4'b1000: opr_res = opr_a            | opr_b;
             4'b1001: opr_res = opr_a            & opr_b;
+            4'b1010: opr_res = opr_b; // pass opr_b
         endcase
     end
 

@@ -128,6 +128,16 @@ module controller
                 br_type  = funct3;
                 br_taken = br_taken;
             end
+            7'b0110111: // U-type (LUI)
+                rf_en    = 1'b1;
+                sel_a    = 1'b0; //it's actually don't care bcz we don't need opr_a
+                sel_b    = 1'b1;
+                rd_en    = 1'b0;
+                wb_sel   = 1'b0;
+                wr_en    = 1'b0;
+                aluop    = 4'b1010;
+                br_type  = 3'b111;
+                br_taken = 1'b0;
             default:
             begin
                 rf_en        = 1'b0;
