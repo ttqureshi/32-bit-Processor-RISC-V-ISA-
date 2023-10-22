@@ -47,10 +47,10 @@ module tb_processor();
         $dumpvars(0, dut);
     end
 
-    initial
+    final
     begin
-        $writememh("rf.mem_out", dut.reg_file_i.reg_mem);
-        $writememh("dm.mem_out", dut.data_mem_i.data_mem);
+        $writememh("rf_out.mem", dut.reg_file_i.reg_mem);
+        $writememh("dm_out.mem", dut.data_mem_i.data_mem);
     end
 
 endmodule

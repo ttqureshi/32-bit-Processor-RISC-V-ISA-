@@ -15,9 +15,10 @@ module controller
         case(opcode)
             7'b0110011: //R-Type
             begin
-                rf_en = 1'b1;
-                sel_b = 1'b0;
-                rd_en = 1'b0;
+                rf_en  = 1'b1;
+                sel_b  = 1'b0;
+                rd_en  = 1'b0;
+                wb_sel = 1'b0;
                 mem_acc_mode = 3'b111;
                 case(funct3)
                     3'b000: 
@@ -44,9 +45,10 @@ module controller
             end
             7'b0010011: // I-type - Data processing
             begin
-                rf_en = 1'b1;
-                sel_b = 1'b1;
-                rd_en = 1'b0;
+                rf_en  = 1'b1;
+                sel_b  = 1'b1;
+                rd_en  = 1'b0;
+                wb_sel = 1'b0;
                 mem_acc_mode = 3'b111;
                 case (funct3)
                     3'b000: aluop = 4'b0000; //ADDI
@@ -67,9 +69,10 @@ module controller
             end
             7'b0000011: // I-type - Load Instructions
             begin
-                rd_en = 1'b1;
-                rf_en = 1'b1;
-                sel_b = 1'b1;
+                rd_en  = 1'b1;
+                rf_en  = 1'b1;
+                sel_b  = 1'b1;
+                wb_sel = 1'b1;
                 aluop = 4'b0000; // aluop is always addition in case of load instructions
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
@@ -84,6 +87,7 @@ module controller
                 rf_en = 1'b0;
                 sel_b = 1'b0;
                 rd_en = 1'b0;
+                wb_sel= 1'b0;
                 mem_acc_mode = 3'b111;
             end
         endcase
