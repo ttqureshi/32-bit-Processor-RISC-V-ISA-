@@ -10,7 +10,7 @@ module controller
     output logic       sel_b,  // control signal to opr_b select MUX to ALU
     output logic       rd_en,  // contorl signal for reading from data memory
     output logic       wr_en,  // control signal for writing into data memory
-    output logic       wb_sel, // control signal for writeback MUX
+    output logic [1:0] wb_sel, // control signal for writeback MUX
     output logic [2:0] mem_acc_mode,
     output logic [2:0] br_type, // goes to branch cond block to tell which comparison to perform
     output logic       br_take // to program counter MUX
@@ -24,7 +24,7 @@ module controller
                 sel_a        = 1'b1;
                 sel_b        = 1'b0;
                 rd_en        = 1'b0;
-                wb_sel       = 1'b0;
+                wb_sel       = 2'b01;
                 wr_en        = 1'b0;
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
@@ -58,7 +58,7 @@ module controller
                 sel_a        = 1'b1;
                 sel_b        = 1'b1;
                 rd_en        = 1'b0;
-                wb_sel       = 1'b0;
+                wb_sel       = 2'b01;
                 wr_en        = 1'b0;
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
@@ -86,7 +86,7 @@ module controller
                 sel_a    = 1'b1;
                 sel_b    = 1'b1;
                 rd_en    = 1'b1;
-                wb_sel   = 1'b1;
+                wb_sel   = 2'b10;
                 wr_en    = 1'b0;
                 br_take  = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of load instructions
@@ -105,7 +105,7 @@ module controller
                 sel_a    = 1'b1;
                 sel_b    = 1'b1;
                 rd_en    = 1'b0;
-                wb_sel   = 1'b0;  // in this case it is don't care because rf_en = 1'b0
+                wb_sel   = 2'b01;  // in this case it is don't care because rf_en = 1'b0
                 wr_en    = 1'b1;
                 br_take  = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of store instructions
@@ -122,7 +122,7 @@ module controller
                 sel_a    = 1'b0;
                 sel_b    = 1'b1;
                 rd_en    = 1'b0;
-                wb_sel   = 1'b0; // in this case it is don't care because rf_en = 1'b0
+                wb_sel   = 2'b01; // in this case it is don't care because rf_en = 1'b0
                 wr_en    = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of branch instructions
                 br_type  = funct3;
@@ -134,7 +134,7 @@ module controller
                 sel_a    = 1'b0; //it's actually don't care bcz we don't need opr_a
                 sel_b    = 1'b1;
                 rd_en    = 1'b0;
-                wb_sel   = 1'b0;
+                wb_sel   = 2'b01;
                 wr_en    = 1'b0;
                 aluop    = 4'b1010;
                 br_type  = 3'b111;
@@ -146,11 +146,35 @@ module controller
                 sel_a    = 1'b0;
                 sel_b    = 1'b1;
                 rd_en    = 1'b0;
-                wb_sel   = 1'b0;
+                wb_sel   = 2'b01;
                 wr_en    = 1'b0;
-                aluop    = 4'b0000;
+                aluop    = 4'b0000; // ADD
                 br_type  = 3'b111;
                 br_take  = 1'b0;
+            end
+            7'b1101111: // J-type (JAL)
+            begin
+                rf_en    = 1'b1;
+                sel_a    = 1'b0;
+                sel_b    = 1'b1;
+                rd_en    = 1'b0;
+                wb_sel   = 2'b00;
+                wr_en    = 1'b0;
+                aluop    = 4'b0000; // ADD
+                br_type  = 3'b111;
+                br_take  = 1'b1;
+            end
+            7'b1100111: // JALR
+            begin
+                rf_en = 1'b1;
+                sel_a = 1'b1;
+                sel_b = 1'b1;
+                rd_en = 1'b0;
+                wb_sel = 2'b00;
+                wr_en = 1'b0;
+                aluop = 4'b0000;
+                br_type = 3'b111;
+                br_take = 1'b1;
             end
             default:
             begin
@@ -158,7 +182,7 @@ module controller
                 sel_a        = 1'b1;
                 sel_b        = 1'b0;
                 rd_en        = 1'b0;
-                wb_sel       = 1'b0;
+                wb_sel       = 2'b01;
                 wr_en        = 1'b0;
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;

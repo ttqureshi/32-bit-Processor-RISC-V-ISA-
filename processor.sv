@@ -27,9 +27,9 @@ module processor
     logic [31:0] rdata;
     logic        rd_en;
     logic        wr_en;
-    logic        wb_sel;
+    logic [ 1:0] wb_sel;
     logic        br_taken;
-    logic [2:0]  br_type;
+    logic [ 2:0] br_type;
     logic [ 2:0] mem_acc_mode;
 
 
@@ -133,12 +133,13 @@ module processor
 
 
     // Writeback MUX
-    mux_2x1 wb_mux
+    mux_3x1 wb_mux
     (
-        .in_0           ( opr_res ),
-        .in_1           ( rdata   ),
-        .select_line    ( wb_sel  ),
-        .out            ( wdata   )
+        .in_0           ( pc_out + 32'd4 ),
+        .in_1           ( opr_res        ),
+        .in_2           ( rdata          ),
+        .select_line    ( wb_sel         ),
+        .out            ( wdata          )
     );
 
 
