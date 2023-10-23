@@ -1,4 +1,4 @@
-module mux_2x1
+module mux_3x1
 (
     input  logic [31:0] in_0,
     input  logic [31:0] in_1,
