@@ -41,4 +41,7 @@ Here dumpfile_name will be ```processor.vcd```
 
 This opens a waveform window. Pull the required signals in the waveform and verify the behaviour of the design.
 
+## License
+[CC0 1.0 Universal](LICENSE)
+
 
