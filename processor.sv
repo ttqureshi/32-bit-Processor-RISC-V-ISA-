@@ -158,7 +158,7 @@ module processor
     (
         .clk    ( clk             ),
         .rst    ( rst             ),
-        .addr   ( imm_val[11:0]   ),
+        .addr   ( imm_val         ),
         .wdata  ( rdata1          ),
         .pc     ( pc_out          ),
         .trap   ( timer_interrupt ),

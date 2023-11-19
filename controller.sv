@@ -198,11 +198,11 @@ module controller
             end
             7'b1110011: // CSRRW
             begin
-                rf_en        = 1'b0;
+                rf_en        = 1'b1;
                 sel_a        = 1'b1;
                 sel_b        = 1'b0;
                 rd_en        = 1'b0;
-                wb_sel       = 2'b01;
+                wb_sel       = 2'b11;
                 wr_en        = 1'b0;
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
