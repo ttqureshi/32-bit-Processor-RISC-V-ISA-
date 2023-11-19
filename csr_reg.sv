@@ -25,10 +25,10 @@ module csr_reg
         if (csr_rd)
         begin
             case (inst[31:20])
-                12'b001100000000: rdata = csr_mem[0]; // mstatus 
-                12'b001100000100: rdata = csr_mem[1]; // mie
-                12'b001101000001: rdata = csr_mem[2]; // mepc
-                12'b001101000100: rdata = csr_mem[3]; // mip
+                12'h300: rdata = csr_mem[0]; // mstatus 
+                12'h304: rdata = csr_mem[1]; // mie
+                12'h341: rdata = csr_mem[2]; // mepc
+                12'h344: rdata = csr_mem[3]; // mip
                 // default: rdata = csr_mem[0];
             endcase
         end
