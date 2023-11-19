@@ -1,7 +1,7 @@
 module csr_reg
 (
-    input  logic clk,
-    input  logic rst,
+    input  logic         clk,
+    input  logic         rst,
     input  logic [11: 0] addr,
     input  logic [31: 0] wdata,
     input  logic [31: 0] pc,
@@ -12,10 +12,12 @@ module csr_reg
     output logic [31: 0] rdata,
     output logic [31: 0] epc
 );
-    logic [31: 0] mstatus;
-    logic [31: 0] mip;
-    logic [31: 0] mie;
-    logic [31: 0] mepc;
+    // logic [31: 0] mstatus;
+    // logic [31: 0] mie;
+    // logic [31: 0] mepc;
+    // logic [31: 0] mip;
+
+    logic [31: 0] csr_mem [4];
 
     // asynchronous read
     always_comb
@@ -23,10 +25,10 @@ module csr_reg
         if (csr_rd)
         begin
             case (addr)
-                12'h300: rdata = mstatus;
-                12'h304: rdata = mie;
-                12'h341: rdata = mepc;
-                12'h344: rdata = mip;
+                12'h300: rdata = csr_mem[0]; // mstatus 
+                12'h304: rdata = csr_mem[1]; // mie
+                12'h341: rdata = csr_mem[2]; // mepc
+                12'h344: rdata = csr_mem[3]; // mip
             endcase
         end
         else
@@ -41,10 +43,10 @@ module csr_reg
         if (csr_wr)
         begin
             case (addr)
-                12'h300: mstatus <= wdata;
-                12'h304: mie     <= wdata;
-                12'h341: mepc    <= wdata;
-                12'h344: mip     <= wdata; 
+                12'h300: csr_mem[0] <= wdata; // mstatus
+                12'h304: csr_mem[1] <= wdata; // mie
+                12'h341: csr_mem[2] <= wdata; // mepc
+                12'h344: csr_mem[3] <= wdata; // mip
             endcase
         end
     end
