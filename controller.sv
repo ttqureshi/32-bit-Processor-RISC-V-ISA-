@@ -5,15 +5,17 @@ module controller
     input  logic [2:0] funct3,
     input  logic       br_taken, // form br_cond block
     output logic [3:0] aluop,
-    output logic       rf_en,  // control signal for write operation in register file
-    output logic       sel_a,  // control signal to opr_a select MUX to ALU
-    output logic       sel_b,  // control signal to opr_b select MUX to ALU
-    output logic       rd_en,  // contorl signal for reading from data memory
-    output logic       wr_en,  // control signal for writing into data memory
-    output logic [1:0] wb_sel, // control signal for writeback MUX
+    output logic       rf_en,    // control signal for write operation in register file
+    output logic       sel_a,    // control signal to opr_a select MUX to ALU
+    output logic       sel_b,    // control signal to opr_b select MUX to ALU
+    output logic       rd_en,    // contorl signal for reading from data memory
+    output logic       wr_en,    // control signal for writing into data memory
+    output logic [1:0] wb_sel,   // control signal for writeback MUX
     output logic [2:0] mem_acc_mode,
-    output logic [2:0] br_type, // goes to branch cond block to tell which comparison to perform
-    output logic       br_take // to program counter MUX
+    output logic [2:0] br_type,  // goes to branch cond block to tell which comparison to perform
+    output logic       br_take,  // to program counter MUX
+    output logic       csr_rd,   // control signal to read from csr register file
+    output logic       csr_wr    // control signal to write to csr register
 );
     always_comb
     begin
@@ -29,6 +31,8 @@ module controller
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
                 br_type      = 3'b111;
+                csr_rd       = 1'b0;
+                csr_wr       = 1'b0;
                 case(funct3)
                     3'b000: 
                     begin
@@ -63,6 +67,8 @@ module controller
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
                 br_type      = 3'b111;
+                csr_rd       = 1'b0;
+                csr_wr       = 1'b0;
                 case (funct3)
                     3'b000: aluop = 4'b0000; //ADDI
                     3'b010: aluop = 4'b0011; //SLTI
@@ -91,6 +97,8 @@ module controller
                 br_take  = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of load instructions
                 br_type  = 3'b111;
+                csr_rd   = 1'b0;
+                csr_wr   = 1'b0;
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
                     3'b001: mem_acc_mode = 3'b001; // Halfword access
@@ -110,6 +118,8 @@ module controller
                 br_take  = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of store instructions
                 br_type  = 3'b111;
+                csr_rd   = 1'b0;
+                csr_wr   = 1'b0;
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
                     3'b001: mem_acc_mode = 3'b001; // Halfword access
@@ -126,7 +136,9 @@ module controller
                 wr_en    = 1'b0;
                 aluop    = 4'b0000; // aluop is always addition in case of branch instructions
                 br_type  = funct3;
-                br_take = br_taken;
+                br_take  = br_taken;
+                csr_rd   = 1'b0;
+                csr_wr   = 1'b0;
             end
             7'b0110111: // U-type (LUI)
             begin
@@ -139,6 +151,8 @@ module controller
                 aluop    = 4'b1010;
                 br_type  = 3'b111;
                 br_take  = 1'b0;
+                csr_rd   = 1'b0;
+                csr_wr   = 1'b0;
             end
             7'b0010111: // U-type (AUIPC)
             begin
@@ -151,6 +165,8 @@ module controller
                 aluop    = 4'b0000; // ADD
                 br_type  = 3'b111;
                 br_take  = 1'b0;
+                csr_rd   = 1'b0;
+                csr_wr   = 1'b0;
             end
             7'b1101111: // J-type (JAL)
             begin
@@ -163,18 +179,36 @@ module controller
                 aluop    = 4'b0000; // ADD
                 br_type  = 3'b111;
                 br_take  = 1'b1;
+                csr_rd   = 1'b0;
+                csr_wr   = 1'b0;
             end
             7'b1100111: // JALR
             begin
-                rf_en = 1'b1;
-                sel_a = 1'b1;
-                sel_b = 1'b1;
-                rd_en = 1'b0;
-                wb_sel = 2'b00;
-                wr_en = 1'b0;
-                aluop = 4'b0000;
+                rf_en   = 1'b1;
+                sel_a   = 1'b1;
+                sel_b   = 1'b1;
+                rd_en   = 1'b0;
+                wb_sel  = 2'b00;
+                wr_en   = 1'b0;
+                aluop   = 4'b0000;
                 br_type = 3'b111;
                 br_take = 1'b1;
+                csr_rd  = 1'b0;
+                csr_wr  = 1'b0;
+            end
+            7'b1110011: // CSRRW
+            begin
+                rf_en        = 1'b0;
+                sel_a        = 1'b1;
+                sel_b        = 1'b0;
+                rd_en        = 1'b0;
+                wb_sel       = 2'b01;
+                wr_en        = 1'b0;
+                br_take      = 1'b0;
+                mem_acc_mode = 3'b111;
+                br_type      = 3'b111;
+                csr_rd       = 1'b1;
+                csr_wr       = 1'b1;
             end
             default:
             begin
@@ -187,6 +221,8 @@ module controller
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
                 br_type      = 3'b111;
+                csr_rd       = 1'b0;
+                csr_wr       = 1'b0;
             end
         endcase
     end

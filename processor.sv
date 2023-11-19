@@ -47,6 +47,7 @@ module processor
         .out         ( new_pc         )
     );
 
+
     // program counter
     pc pc_i
     (
@@ -56,12 +57,14 @@ module processor
         .pc_out( pc_out         )
     );
 
+
     // instruction memory
     inst_mem inst_mem_i
     (
         .addr  ( pc_out         ),
         .data  ( inst           )
     );
+
 
     // instruction decoder
     inst_dec inst_dec_i
@@ -74,6 +77,7 @@ module processor
         .funct3( funct3         ),
         .funct7( funct7         )
     );
+
 
     // register file
     reg_file reg_file_i
@@ -88,6 +92,7 @@ module processor
         .wdata ( wdata          )
     );
 
+
     // immediate generator
     imm_gen imm_gen_i
     (
@@ -95,8 +100,8 @@ module processor
         .imm_val( imm_val       )
     );
 
-    // ALU opr_a MUX
 
+    // ALU opr_a MUX
     mux_2x1 mux_2x1_alu_opr_a
     (
         .in_0           ( pc_out  ),
@@ -104,6 +109,7 @@ module processor
         .select_line    ( sel_a   ),
         .out            ( opr_a   )
     );
+
 
     // ALU opr_b MUX
     mux_2x1 mux_2x1_alu_opr_b
@@ -125,6 +131,7 @@ module processor
     );
 
 
+    // data memory
     data_mem data_mem_i
     (
         .clk            ( clk          ),
@@ -136,6 +143,8 @@ module processor
         .rdata          ( rdata        )
     );
 
+
+    // timer 
     timer timer_i
     (
         .clk             ( clk             ),
@@ -143,6 +152,8 @@ module processor
         .timer_interrupt ( timer_interrupt )
     );
 
+
+    // csr 
     csr_reg csr_reg_i
     (
         .clk    ( clk             ),
@@ -186,7 +197,9 @@ module processor
         .wb_sel         ( wb_sel         ),
         .mem_acc_mode   ( mem_acc_mode   ),
         .br_type        ( br_type        ),
-        .br_take        ( br_taken       )
+        .br_take        ( br_taken       ),
+        .csr_rd         ( csr_rd         ),
+        .csr_wr         ( csr_wr         )
     );
 
     
