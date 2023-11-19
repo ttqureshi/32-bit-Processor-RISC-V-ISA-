@@ -31,6 +31,11 @@ module processor
     logic        br_taken;
     logic [ 2:0] br_type;
     logic [ 2:0] mem_acc_mode;
+    logic        timer_interrupt;
+    logic        csr_rd;
+    logic        csr_wr;
+    logic [31:0] csr_rdata;
+    logic [31:0] epc;
 
 
     // PC MUX
@@ -129,6 +134,28 @@ module processor
         .mem_acc_mode   ( mem_acc_mode ),
         .rdata2         ( rdata2       ),
         .rdata          ( rdata        )
+    );
+
+    timer timer_i
+    (
+        .clk             ( clk             ),
+        .rst             ( rst             ),
+        .timer_interrupt ( timer_interrupt )
+    );
+
+    csr_reg csr_reg_i
+    (
+        .clk    ( clk             ),
+        .rst    ( rst             ),
+        .addr   ( imm_val[11:0]   ),
+        .wdata  ( rdata1          ),
+        .pc     ( pc_out          ),
+        .trap   ( timer_interrupt ),
+        .csr_rd ( csr_rd          ),
+        .csr_wr ( csr_wr          ),
+        .inst   ( inst            ),
+        .rdata  ( csr_rdata       ),
+        .epc    ( epc             )
     );
 
 

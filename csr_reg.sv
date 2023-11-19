@@ -6,8 +6,8 @@ module csr_reg
     input  logic [31: 0] wdata,
     input  logic [31: 0] pc,
     input  logic         trap,
-    input  logic         reg_rd,
-    input  logic         reg_wr,
+    input  logic         csr_rd,
+    input  logic         csr_wr,
     input  logic [31: 0] inst,
     output logic [31: 0] rdata,
     output logic [31: 0] epc
@@ -20,7 +20,7 @@ module csr_reg
     // asynchronous read
     always_comb
     begin
-        if (reg_rd)
+        if (csr_rd)
         begin
             case (addr)
                 12'h300: rdata = mstatus;
@@ -38,7 +38,7 @@ module csr_reg
     // synchronous write
     always_ff @(posedge clk)
     begin
-        if (reg_wr)
+        if (csr_wr)
         begin
             case (addr)
                 12'h300: mstatus <= wdata;
