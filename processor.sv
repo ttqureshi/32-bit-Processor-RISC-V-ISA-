@@ -171,11 +171,12 @@ module processor
 
 
     // Writeback MUX
-    mux_3x1 wb_mux
+    mux_4x1 wb_mux
     (
         .in_0           ( pc_out + 32'd4 ),
         .in_1           ( opr_res        ),
         .in_2           ( rdata          ),
+        .in_3           ( csr_rdata      ),
         .select_line    ( wb_sel         ),
         .out            ( wdata          )
     );
