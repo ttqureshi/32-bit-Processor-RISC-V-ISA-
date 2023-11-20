@@ -8,9 +8,11 @@ module csr_reg
     input  logic         trap,
     input  logic         csr_rd, // control signal for read
     input  logic         csr_wr, // control signal for write
+    input  logic         is_mret, // control signal for MRET inst
     input  logic [31: 0] inst,
     output logic [31: 0] rdata,
-    output logic [31: 0] epc
+    output logic [31: 0] epc,
+    output logic         epc_taken // it's a flag which is fed to the mux right before PC
 );
     // logic [31: 0] mstatus;
     // logic [31: 0] mie;
@@ -35,6 +37,19 @@ module csr_reg
         else
         begin
             rdata = 32'b0;
+        end
+    end
+
+    always_comb
+    begin
+        if (is_mret)
+        begin
+            epc_taken = 1'b1;
+            epc       = csr_mem[2]; // reading the value of 'mepc' register
+        end
+        else
+        begin
+            epc_taken = 1'b0;
         end
     end
 

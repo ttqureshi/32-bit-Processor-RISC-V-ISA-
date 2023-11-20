@@ -15,7 +15,8 @@ module controller
     output logic [2:0] br_type,  // goes to branch cond block to tell which comparison to perform
     output logic       br_take,  // to program counter MUX
     output logic       csr_rd,   // control signal to read from csr register file
-    output logic       csr_wr    // control signal to write to csr register
+    output logic       csr_wr,   // control signal to write to csr register
+    output logic       is_mret   // control signal for 'mret' instruction --- 1 will indicate that the inst is mret
 );
     always_comb
     begin
@@ -33,6 +34,7 @@ module controller
                 br_type      = 3'b111;
                 csr_rd       = 1'b0;
                 csr_wr       = 1'b0;
+                is_mret      = 1'b0;
                 case(funct3)
                     3'b000: 
                     begin
@@ -69,6 +71,7 @@ module controller
                 br_type      = 3'b111;
                 csr_rd       = 1'b0;
                 csr_wr       = 1'b0;
+                is_mret      = 1'b0;
                 case (funct3)
                     3'b000: aluop = 4'b0000; //ADDI
                     3'b010: aluop = 4'b0011; //SLTI
@@ -88,17 +91,18 @@ module controller
             end
             7'b0000011: // I-type - Load Instructions
             begin
-                rf_en    = 1'b1;
-                sel_a    = 1'b1;
-                sel_b    = 1'b1;
-                rd_en    = 1'b1;
-                wb_sel   = 2'b10;
-                wr_en    = 1'b0;
-                br_take  = 1'b0;
-                aluop    = 4'b0000; // aluop is always addition in case of load instructions
-                br_type  = 3'b111;
-                csr_rd   = 1'b0;
-                csr_wr   = 1'b0;
+                rf_en     = 1'b1;
+                sel_a     = 1'b1;
+                sel_b     = 1'b1;
+                rd_en     = 1'b1;
+                wb_sel    = 2'b10;
+                wr_en     = 1'b0;
+                br_take   = 1'b0;
+                aluop     = 4'b0000; // aluop is always addition in case of load instructions
+                br_type   = 3'b111;
+                csr_rd    = 1'b0;
+                csr_wr    = 1'b0;
+                is_mret   = 1'b0;
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
                     3'b001: mem_acc_mode = 3'b001; // Halfword access
@@ -109,17 +113,18 @@ module controller
             end
             7'b0100011: // S-type - Store Instructions
             begin
-                rf_en    = 1'b0;
-                sel_a    = 1'b1;
-                sel_b    = 1'b1;
-                rd_en    = 1'b0;
-                wb_sel   = 2'b01;  // in this case it is don't care because rf_en = 1'b0
-                wr_en    = 1'b1;
-                br_take  = 1'b0;
-                aluop    = 4'b0000; // aluop is always addition in case of store instructions
-                br_type  = 3'b111;
-                csr_rd   = 1'b0;
-                csr_wr   = 1'b0;
+                rf_en     = 1'b0;
+                sel_a     = 1'b1;
+                sel_b     = 1'b1;
+                rd_en     = 1'b0;
+                wb_sel    = 2'b01;  // in this case it is don't care because rf_en = 1'b0
+                wr_en     = 1'b1;
+                br_take   = 1'b0;
+                aluop     = 4'b0000; // aluop is always addition in case of store instructions
+                br_type   = 3'b111;
+                csr_rd    = 1'b0;
+                csr_wr    = 1'b0;
+                is_mret   = 1'b0;
                 case(funct3)
                     3'b000: mem_acc_mode = 3'b000; // Byte access
                     3'b001: mem_acc_mode = 3'b001; // Halfword access
@@ -128,73 +133,78 @@ module controller
             end
             7'b1100011: // B-type
             begin
-                rf_en    = 1'b0;
-                sel_a    = 1'b0;
-                sel_b    = 1'b1;
-                rd_en    = 1'b0;
-                wb_sel   = 2'b01; // in this case it is don't care because rf_en = 1'b0
-                wr_en    = 1'b0;
-                aluop    = 4'b0000; // aluop is always addition in case of branch instructions
-                br_type  = funct3;
-                br_take  = br_taken;
-                csr_rd   = 1'b0;
-                csr_wr   = 1'b0;
+                rf_en     = 1'b0;
+                sel_a     = 1'b0;
+                sel_b     = 1'b1;
+                rd_en     = 1'b0;
+                wb_sel    = 2'b01; // in this case it is don't care because rf_en = 1'b0
+                wr_en     = 1'b0;
+                aluop     = 4'b0000; // aluop is always addition in case of branch instructions
+                br_type   = funct3;
+                br_take   = br_taken;
+                csr_rd    = 1'b0;
+                csr_wr    = 1'b0;
+                is_mret   = 1'b0;
             end
             7'b0110111: // U-type (LUI)
             begin
-                rf_en    = 1'b1;
-                sel_a    = 1'b0; //it's actually don't care bcz we don't need opr_a
-                sel_b    = 1'b1;
-                rd_en    = 1'b0;
-                wb_sel   = 2'b01;
-                wr_en    = 1'b0;
-                aluop    = 4'b1010;
-                br_type  = 3'b111;
-                br_take  = 1'b0;
-                csr_rd   = 1'b0;
-                csr_wr   = 1'b0;
+                rf_en     = 1'b1;
+                sel_a     = 1'b0; //it's actually don't care bcz we don't need opr_a
+                sel_b     = 1'b1;
+                rd_en     = 1'b0;
+                wb_sel    = 2'b01;
+                wr_en     = 1'b0;
+                aluop     = 4'b1010;
+                br_type   = 3'b111;
+                br_take   = 1'b0;
+                csr_rd    = 1'b0;
+                csr_wr    = 1'b0;
+                is_mret   = 1'b0;
             end
             7'b0010111: // U-type (AUIPC)
             begin
-                rf_en    = 1'b1;
-                sel_a    = 1'b0;
-                sel_b    = 1'b1;
-                rd_en    = 1'b0;
-                wb_sel   = 2'b01;
-                wr_en    = 1'b0;
-                aluop    = 4'b0000; // ADD
-                br_type  = 3'b111;
-                br_take  = 1'b0;
-                csr_rd   = 1'b0;
-                csr_wr   = 1'b0;
+                rf_en     = 1'b1;
+                sel_a     = 1'b0;
+                sel_b     = 1'b1;
+                rd_en     = 1'b0;
+                wb_sel    = 2'b01;
+                wr_en     = 1'b0;
+                aluop     = 4'b0000; // ADD
+                br_type   = 3'b111;
+                br_take   = 1'b0;
+                csr_rd    = 1'b0;
+                csr_wr    = 1'b0;
+                is_mret   = 1'b0;
             end
             7'b1101111: // J-type (JAL)
             begin
-                rf_en    = 1'b1;
-                sel_a    = 1'b0;
-                sel_b    = 1'b1;
-                rd_en    = 1'b0;
-                wb_sel   = 2'b00;
-                wr_en    = 1'b0;
-                aluop    = 4'b0000; // ADD
-                br_type  = 3'b111;
-                br_take  = 1'b1;
-                csr_rd   = 1'b0;
-                csr_wr   = 1'b0;
+                rf_en     = 1'b1;
+                sel_a     = 1'b0;
+                sel_b     = 1'b1;
+                rd_en     = 1'b0;
+                wb_sel    = 2'b00;
+                wr_en     = 1'b0;
+                aluop     = 4'b0000; // ADD
+                br_type   = 3'b111;
+                br_take   = 1'b1;
+                csr_rd    = 1'b0;
+                csr_wr    = 1'b0;
+                is_mret   = 1'b0;
             end
             7'b1100111: // JALR
             begin
-                rf_en   = 1'b1;
-                sel_a   = 1'b1;
-                sel_b   = 1'b1;
-                rd_en   = 1'b0;
-                wb_sel  = 2'b00;
-                wr_en   = 1'b0;
-                aluop   = 4'b0000;
-                br_type = 3'b111;
-                br_take = 1'b1;
-                csr_rd  = 1'b0;
-                csr_wr  = 1'b0;
+                rf_en     = 1'b1;
+                sel_a     = 1'b1;
+                sel_b     = 1'b1;
+                rd_en     = 1'b0;
+                wb_sel    = 2'b00;
+                wr_en     = 1'b0;
+                aluop     = 4'b0000;
+                br_type   = 3'b111;
+                br_take   = 1'b1;
+                csr_rd    = 1'b0;
+                csr_wr    = 1'b0;
+                is_mret   = 1'b0;
             end
             7'b1110011: // CSRRW
             begin
@@ -209,6 +219,22 @@ module controller
                 br_type      = 3'b111;
                 csr_rd       = 1'b1;
                 csr_wr       = 1'b1;
+                is_mret      = 1'b0;
+            end
+            7'b1110011: // MRET
+            begin
+                rf_en        = 1'b0;
+                sel_a        = 1'b1;
+                sel_b        = 1'b0;
+                rd_en        = 1'b0;
+                wb_sel       = 2'b01;
+                wr_en        = 1'b0;
+                br_take      = 1'b0;
+                mem_acc_mode = 3'b111;
+                br_type      = 3'b111;
+                csr_rd       = 1'b1;
+                csr_wr       = 1'b0;
+                is_mret      = 1'b1;
             end
             default:
             begin
@@ -223,6 +249,7 @@ module controller
                 br_type      = 3'b111;
                 csr_rd       = 1'b0;
                 csr_wr       = 1'b0;
+                is_mret      = 1'b0;
             end
         endcase
     end

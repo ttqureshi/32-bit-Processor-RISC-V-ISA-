@@ -36,6 +36,9 @@ module processor
     logic        csr_wr;
     logic [31:0] csr_rdata;
     logic [31:0] epc;
+    logic        is_mret;
+    logic        epc_taken;
+    logic [31:0] epc_pc;
 
 
     // PC MUX
@@ -48,12 +51,21 @@ module processor
     );
 
 
+    mux_2x1 mux_2x1_epc
+    (
+        .in_0        ( new_pc    ),
+        .in_1        ( epc       ),
+        .select_line ( epc_taken ),
+        .out         ( epc_pc    ) 
+    );
+
+
     // program counter
     pc pc_i
     (
         .clk   ( clk            ),
         .rst   ( rst            ),
-        .pc_in ( new_pc         ),
+        .pc_in ( epc_pc         ),
         .pc_out( pc_out         )
     );
 
@@ -156,17 +168,19 @@ module processor
     // csr 
     csr_reg csr_reg_i
     (
-        .clk    ( clk             ),
-        .rst    ( rst             ),
-        .addr   ( imm_val         ),
-        .wdata  ( rdata1          ),
-        .pc     ( pc_out          ),
-        .trap   ( timer_interrupt ),
-        .csr_rd ( csr_rd          ),
-        .csr_wr ( csr_wr          ),
-        .inst   ( inst            ),
-        .rdata  ( csr_rdata       ),
-        .epc    ( epc             )
+        .clk       ( clk             ),
+        .rst       ( rst             ),
+        .addr      ( imm_val         ),
+        .wdata     ( rdata1          ),
+        .pc        ( pc_out          ),
+        .trap      ( timer_interrupt ),
+        .csr_rd    ( csr_rd          ),
+        .csr_wr    ( csr_wr          ),
+        .is_mret   ( is_mret         ),
+        .inst      ( inst            ),
+        .rdata     ( csr_rdata       ),
+        .epc       ( epc             ),
+        .epc_taken ( epc_taken       )
     );
 
 
@@ -200,7 +214,8 @@ module processor
         .br_type        ( br_type        ),
         .br_take        ( br_taken       ),
         .csr_rd         ( csr_rd         ),
-        .csr_wr         ( csr_wr         )
+        .csr_wr         ( csr_wr         ),
+        .is_mret        ( is_mret        )
     );
 
     
