@@ -208,33 +208,39 @@ module controller
             end
             7'b1110011: // CSRRW
             begin
-                rf_en        = 1'b1;
-                sel_a        = 1'b1;
-                sel_b        = 1'b0;
-                rd_en        = 1'b0;
-                wb_sel       = 2'b11;
-                wr_en        = 1'b0;
-                br_take      = 1'b0;
-                mem_acc_mode = 3'b111;
-                br_type      = 3'b111;
-                csr_rd       = 1'b1;
-                csr_wr       = 1'b1;
-                is_mret      = 1'b0;
-            end
-            7'b1110011: // MRET
-            begin
-                rf_en        = 1'b0;
-                sel_a        = 1'b1;
-                sel_b        = 1'b0;
-                rd_en        = 1'b0;
-                wb_sel       = 2'b01;
-                wr_en        = 1'b0;
-                br_take      = 1'b0;
-                mem_acc_mode = 3'b111;
-                br_type      = 3'b111;
-                csr_rd       = 1'b1;
-                csr_wr       = 1'b0;
-                is_mret      = 1'b1;
+                case (funct3)
+                3'b000: // MRET
+                    begin
+                        rf_en        = 1'b0;
+                        sel_a        = 1'b1;
+                        sel_b        = 1'b0;
+                        rd_en        = 1'b0;
+                        wb_sel       = 2'b01;
+                        wr_en        = 1'b0;
+                        br_take      = 1'b0;
+                        mem_acc_mode = 3'b111;
+                        br_type      = 3'b111;
+                        csr_rd       = 1'b0;
+                        csr_wr       = 1'b0;
+                        is_mret      = 1'b1;
+                    end
+
+                default:
+                    begin
+                        rf_en        = 1'b1;
+                        sel_a        = 1'b1;
+                        sel_b        = 1'b0;
+                        rd_en        = 1'b0;
+                        wb_sel       = 2'b11;
+                        wr_en        = 1'b0;
+                        br_take      = 1'b0;
+                        mem_acc_mode = 3'b111;
+                        br_type      = 3'b111;
+                        csr_rd       = 1'b1;
+                        csr_wr       = 1'b1;
+                        is_mret      = 1'b0;
+                    end
+                endcase
             end
             default:
             begin

@@ -1,4 +1,0 @@
-// memory data file (do not edit the following line - required for mem load use)
-// instance=/tb_processor/dut/pc_i/pc_reg(0)
-// format=hex addressradix=h dataradix=h version=1.0 wordsperline=1 noaddress
-00000190

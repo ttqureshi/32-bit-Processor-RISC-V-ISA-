@@ -1,9 +1,9 @@
 // <===============> TEST CASES FOR CSRRW <===============>
 
-//00000000000100000000010100010011
-//00000000101000000000011000010011
-//00110000000001010001010111110011
-//00110100010001100001011011110011
+00000000000100000000010100010011
+00000000101000000000011000010011
+00110000000001010001010111110011
+00110100010001100001011011110011
 
 // li x10,1
 // li x12,10
@@ -13,3 +13,12 @@
 
 // <===============> TEST CASES FOR MRET <===============>
 00110000001000000000000001110011
+
+
+
+// based on the currest state of rf.mem and csr_reg.mem, the status of rf_out.mem should be:
+// x10 = 00000001, x11 = 00000010, x12 = 0000000a, x13 = 00000004, rest of the registers should be 00000000.
+// and the csr_reg_out.mem should be:
+// mstatus = 00000001, mie = 00000000, mepc = 0000007c, mip = 0000000a
+//
+// The effect of MRET can be observed by viewing the VCD waveform file "processor.vcd". It can be observed that the PC sets to 0000007c after the execution of MRET instruction.

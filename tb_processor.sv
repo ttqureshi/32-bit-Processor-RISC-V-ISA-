@@ -53,7 +53,6 @@ module tb_processor();
         $writememh("rf_out.mem", dut.reg_file_i.reg_mem);
         $writememh("dm_out.mem", dut.data_mem_i.data_mem);
         $writememh("csr_reg_out.mem", dut.csr_reg_i.csr_mem);
-        $writememh("pc_out.mem", dut.pc_i.pc_reg);
     end
 
 endmodule
