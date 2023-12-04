@@ -29,6 +29,7 @@ module processor
     logic        wr_en;
     logic [ 1:0] wb_sel;
     logic        br_taken;
+    logic        br_take;
     logic [ 2:0] br_type;
     logic [ 2:0] mem_acc_mode;
     logic        timer_interrupt;
@@ -132,6 +133,15 @@ module processor
         .out            ( opr_b   )
     );
 
+    // br_cond
+    br_cond br_cond_i
+    (
+        .rdata1 (rdata1),
+        .rdata2 (rdata2),
+        .br_type (br_type),
+        .br_taken (br_taken)
+    );
+
 
     // alu
     alu alu_i
@@ -212,7 +222,7 @@ module processor
         .wb_sel         ( wb_sel         ),
         .mem_acc_mode   ( mem_acc_mode   ),
         .br_type        ( br_type        ),
-        .br_take        ( br_taken       ),
+        .br_take        ( br_take        ),
         .csr_rd         ( csr_rd         ),
         .csr_wr         ( csr_wr         ),
         .is_mret        ( is_mret        )
