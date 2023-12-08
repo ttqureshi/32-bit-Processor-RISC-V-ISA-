@@ -47,7 +47,7 @@ module processor
     (
         .in_0        ( pc_out + 32'd4 ),
         .in_1        ( opr_res        ),
-        .select_line ( br_taken       ),
+        .select_line ( br_take        ),
         .out         ( new_pc         )
     );
 
@@ -136,10 +136,10 @@ module processor
     // br_cond
     br_cond br_cond_i
     (
-        .rdata1 (rdata1),
-        .rdata2 (rdata2),
-        .br_type (br_type),
-        .br_taken (br_taken)
+        .rdata1   ( rdata1   ),
+        .rdata2   ( rdata2   ),
+        .br_type  ( br_type  ),
+        .br_taken ( br_taken )
     );
 
 
