@@ -43,20 +43,6 @@ module csr_reg
         end
     end
 
-    // always_comb
-    // begin
-    //     if (is_mret)
-    //     begin
-    //         epc_taken = 1'b1;
-    //         epc       = csr_mem[3]; // reading the value of 'mepc' register 
-    //     end
-    //     else
-    //     begin
-    //         epc_taken = 1'b0;
-    //         epc       = pc;
-    //     end
-    // end
-
 
     always_ff @(posedge clk)
     begin
@@ -100,11 +86,6 @@ module csr_reg
             epc_taken <= 1'b1;
             epc       <= csr_mem[3]; // reading the value of 'mepc' register
         end
-        // else
-        // begin
-        //     epc_taken <= 1'b0;
-        //     epc       <= pc;
-        // end
         else
         begin
             epc_taken <= 1'b0;
@@ -112,26 +93,4 @@ module csr_reg
         end
     end
 
-
-
-
-
-
-
-    // interrupt configuration
-    // always_ff @(posedge clk)
-    // begin
-    //     if (trap)
-    //     begin
-    //         csr_mem[5] <= csr_mem[5] | 32'd128; // registering the timer interrupt at the 7th index bit of mip (see page 38 of riscv-privileged-v1.10 manual)
-    //         is_device_int_en = csr_mem[5][7] & csr_mem[1][7];
-    //         is_global_int_en = csr_mem[0][3] & is_device_int_en; // 3rd index bit of mstatus register is MIE (see page 30 of riscv-privileged-v1.10 manual)
-    //         if (is_global_int_en)
-    //         begin
-    //             csr_mem[3] = pc; // saves the value of PC to mepc register
-
-    //             // mtvec[31:1] + (mcause[31:0] << 2);
-    //         end
-    //     end
-    // end
 endmodule
