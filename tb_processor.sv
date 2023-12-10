@@ -12,6 +12,14 @@ module tb_processor();
         .rst ( rst )
     );
 
+    // timer ins_timer
+    // (
+    //     .clk( clk ),
+    //     .rst( rst ),
+    //     .timer_interrupt (  timer_interrupt)
+
+    // );
+
     // clock generator
     initial 
     begin

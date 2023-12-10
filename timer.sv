@@ -3,7 +3,7 @@ module timer (
     input  logic rst,
     output logic timer_interrupt
 );
-    parameter TIMER_LIMIT = 50000; // clock frequency
+    parameter TIMER_LIMIT = 10;
 
     reg [31:0] timer_counter;
     

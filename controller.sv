@@ -8,14 +8,14 @@ module controller
     output logic       rf_en,    // control signal for write operation in register file
     output logic       sel_a,    // control signal to opr_a select MUX to ALU
     output logic       sel_b,    // control signal to opr_b select MUX to ALU
-    output logic       rd_en,    // contorl signal for reading from data memory
+    output logic       rd_en,    // control signal for reading from data memory
     output logic       wr_en,    // control signal for writing into data memory
     output logic [1:0] wb_sel,   // control signal for writeback MUX
     output logic [2:0] mem_acc_mode,
     output logic [2:0] br_type,  // goes to branch cond block to tell which comparison to perform
     output logic       br_take,  // to program counter MUX
-    output logic       csr_rd,   // control signal to read from csr register file
-    output logic       csr_wr,   // control signal to write to csr register
+    output logic       csr_rd,   // control signal to read from CSR register file
+    output logic       csr_wr,   // control signal to write to CSR register
     output logic       is_mret   // control signal for 'mret' instruction --- 1 will indicate that the inst is mret
 );
     always_comb
@@ -31,7 +31,7 @@ module controller
                 wr_en        = 1'b0;
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
-                br_type      = 3'b111;
+                br_type      = 3'b011;
                 csr_rd       = 1'b0;
                 csr_wr       = 1'b0;
                 is_mret      = 1'b0;
@@ -68,7 +68,7 @@ module controller
                 wr_en        = 1'b0;
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
-                br_type      = 3'b111;
+                br_type      = 3'b011;
                 csr_rd       = 1'b0;
                 csr_wr       = 1'b0;
                 is_mret      = 1'b0;
@@ -99,7 +99,7 @@ module controller
                 wr_en     = 1'b0;
                 br_take   = 1'b0;
                 aluop     = 4'b0000; // aluop is always addition in case of load instructions
-                br_type   = 3'b111;
+                br_type   = 3'b011;
                 csr_rd    = 1'b0;
                 csr_wr    = 1'b0;
                 is_mret   = 1'b0;
@@ -121,7 +121,7 @@ module controller
                 wr_en     = 1'b1;
                 br_take   = 1'b0;
                 aluop     = 4'b0000; // aluop is always addition in case of store instructions
-                br_type   = 3'b111;
+                br_type   = 3'b011;
                 csr_rd    = 1'b0;
                 csr_wr    = 1'b0;
                 is_mret   = 1'b0;
@@ -155,7 +155,7 @@ module controller
                 wb_sel    = 2'b01;
                 wr_en     = 1'b0;
                 aluop     = 4'b1010;
-                br_type   = 3'b111;
+                br_type   = 3'b011;
                 br_take   = 1'b0;
                 csr_rd    = 1'b0;
                 csr_wr    = 1'b0;
@@ -170,7 +170,7 @@ module controller
                 wb_sel    = 2'b01;
                 wr_en     = 1'b0;
                 aluop     = 4'b0000; // ADD
-                br_type   = 3'b111;
+                br_type   = 3'b011;
                 br_take   = 1'b0;
                 csr_rd    = 1'b0;
                 csr_wr    = 1'b0;
@@ -185,7 +185,7 @@ module controller
                 wb_sel    = 2'b00;
                 wr_en     = 1'b0;
                 aluop     = 4'b0000; // ADD
-                br_type   = 3'b111;
+                br_type   = 3'b011;
                 br_take   = 1'b1;
                 csr_rd    = 1'b0;
                 csr_wr    = 1'b0;
@@ -200,7 +200,7 @@ module controller
                 wb_sel    = 2'b00;
                 wr_en     = 1'b0;
                 aluop     = 4'b0000;
-                br_type   = 3'b111;
+                br_type   = 3'b011;
                 br_take   = 1'b1;
                 csr_rd    = 1'b0;
                 csr_wr    = 1'b0;
@@ -219,7 +219,7 @@ module controller
                         wr_en        = 1'b0;
                         br_take      = 1'b0;
                         mem_acc_mode = 3'b111;
-                        br_type      = 3'b111;
+                        br_type      = 3'b011;
                         csr_rd       = 1'b0;
                         csr_wr       = 1'b0;
                         is_mret      = 1'b1;
@@ -235,7 +235,7 @@ module controller
                         wr_en        = 1'b0;
                         br_take      = 1'b0;
                         mem_acc_mode = 3'b111;
-                        br_type      = 3'b111;
+                        br_type      = 3'b011;
                         csr_rd       = 1'b1;
                         csr_wr       = 1'b1;
                         is_mret      = 1'b0;
@@ -252,7 +252,7 @@ module controller
                 wr_en        = 1'b0;
                 br_take      = 1'b0;
                 mem_acc_mode = 3'b111;
-                br_type      = 3'b111;
+                br_type      = 3'b011;
                 csr_rd       = 1'b0;
                 csr_wr       = 1'b0;
                 is_mret      = 1'b0;
