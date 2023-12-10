@@ -1,24 +1,22 @@
 module tb_processor();
 
-    // add x3, x4, x2
-    // 00000000001000100000000110110011
-
     logic clk;
     logic rst;
+    logic timer_interrupt;
 
     processor dut 
     (
-        .clk ( clk ),
-        .rst ( rst )
+        .clk             ( clk             ),
+        .rst             ( rst             ),
+        .timer_interrupt ( timer_interrupt )
     );
 
-    // timer ins_timer
-    // (
-    //     .clk( clk ),
-    //     .rst( rst ),
-    //     .timer_interrupt (  timer_interrupt)
-
-    // );
+    timer timer_i
+    (
+        .clk( clk ),
+        .rst( rst ),
+        .timer_interrupt ( timer_interrupt )
+    );
 
     // clock generator
     initial 

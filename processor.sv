@@ -1,7 +1,8 @@
 module processor 
 (
     input logic clk,
-    input logic rst
+    input logic rst,
+    input logic timer_interrupt
 ); 
     // wires
     logic        rf_en;
@@ -32,7 +33,6 @@ module processor
     logic        br_take;
     logic [ 2:0] br_type;
     logic [ 2:0] mem_acc_mode;
-    logic        timer_interrupt;
     logic        csr_rd;
     logic        csr_wr;
     logic [31:0] csr_rdata;
@@ -163,15 +163,6 @@ module processor
         .mem_acc_mode   ( mem_acc_mode ),
         .rdata2         ( rdata2       ),
         .rdata          ( rdata        )
-    );
-
-
-    // timer 
-    timer timer_i
-    (
-        .clk             ( clk             ),
-        .rst             ( rst             ),
-        .timer_interrupt ( timer_interrupt )
     );
 
 
