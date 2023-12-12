@@ -41,6 +41,7 @@ module processor
     logic        epc_taken;
     logic [31:0] epc_pc;
 
+    // --------------------- Instruction Fetch ---------------------
 
     // PC MUX
     mux_2x1 mux_2x1_pc
@@ -78,6 +79,11 @@ module processor
         .data  ( inst           )
     );
 
+    // ------------------------------------------------------
+
+    // IF <-> ID Buffer
+
+    // --------------------- Instruction Decode ---------------------
 
     // instruction decoder
     inst_dec inst_dec_i
@@ -114,6 +120,35 @@ module processor
     );
 
 
+    // controller
+    controller controller_i
+    (
+        .opcode         ( opcode         ),
+        .funct3         ( funct3         ),
+        .funct7         ( funct7         ),
+        .br_taken       ( br_taken       ),
+        .aluop          ( aluop          ),
+        .rf_en          ( rf_en          ),
+        .sel_a          ( sel_a          ),
+        .sel_b          ( sel_b          ),
+        .rd_en          ( rd_en          ),
+        .wr_en          ( wr_en          ),
+        .wb_sel         ( wb_sel         ),
+        .mem_acc_mode   ( mem_acc_mode   ),
+        .br_type        ( br_type        ),
+        .br_take        ( br_take        ),
+        .csr_rd         ( csr_rd         ),
+        .csr_wr         ( csr_wr         ),
+        .is_mret        ( is_mret        )
+    );
+
+    // ------------------------------------------------------
+
+    // ID <-> EX Buffer
+
+
+    // --------------------- Execute ---------------------
+
     // ALU opr_a MUX
     mux_2x1 mux_2x1_alu_opr_a
     (
@@ -133,15 +168,6 @@ module processor
         .out            ( opr_b   )
     );
 
-    // br_cond
-    br_cond br_cond_i
-    (
-        .rdata1   ( rdata1   ),
-        .rdata2   ( rdata2   ),
-        .br_type  ( br_type  ),
-        .br_taken ( br_taken )
-    );
-
 
     // alu
     alu alu_i
@@ -151,6 +177,23 @@ module processor
         .opr_b   ( opr_b          ),
         .opr_res ( opr_res        )
     );
+
+
+    // br_cond
+    br_cond br_cond_i
+    (
+        .rdata1   ( rdata1   ),
+        .rdata2   ( rdata2   ),
+        .br_type  ( br_type  ),
+        .br_taken ( br_taken )
+    );
+
+    // ------------------------------------------------------
+
+    // EX <-> MEM Buffer
+
+
+    // --------------------- Memory ---------------------
 
 
     // data memory
@@ -184,8 +227,15 @@ module processor
         .epc_taken ( epc_taken       )
     );
 
+    // ------------------------------------------------------
 
-    // Writeback MUX
+    // MEM <-> WB Buffer
+    
+
+    // --------------------- Write Back ---------------------
+
+
+    // Writeback selection MUX
     mux_4x1 wb_mux
     (
         .in_0           ( pc_out + 32'd4 ),
@@ -196,28 +246,10 @@ module processor
         .out            ( wdata          )
     );
 
+    // ------------------------------------------------------
 
-    // controller
-    controller controller_i
-    (
-        .opcode         ( opcode         ),
-        .funct3         ( funct3         ),
-        .funct7         ( funct7         ),
-        .br_taken       ( br_taken       ),
-        .aluop          ( aluop          ),
-        .rf_en          ( rf_en          ),
-        .sel_a          ( sel_a          ),
-        .sel_b          ( sel_b          ),
-        .rd_en          ( rd_en          ),
-        .wr_en          ( wr_en          ),
-        .wb_sel         ( wb_sel         ),
-        .mem_acc_mode   ( mem_acc_mode   ),
-        .br_type        ( br_type        ),
-        .br_take        ( br_take        ),
-        .csr_rd         ( csr_rd         ),
-        .csr_wr         ( csr_wr         ),
-        .is_mret        ( is_mret        )
-    );
+    // Feedback from WB to ID
+
 
     
 endmodule
