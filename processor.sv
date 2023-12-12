@@ -49,6 +49,7 @@ module processor
         .in_0        ( pc_out + 32'd4 ),
         .in_1        ( opr_res        ),
         .select_line ( br_take        ),
+        
         .out         ( new_pc         )
     );
 
@@ -58,6 +59,7 @@ module processor
         .in_0        ( new_pc    ),
         .in_1        ( epc       ),
         .select_line ( epc_taken ),
+        
         .out         ( epc_pc    ) 
     );
 
@@ -68,20 +70,35 @@ module processor
         .clk   ( clk            ),
         .rst   ( rst            ),
         .pc_in ( epc_pc         ),
-        .pc_out( pc_out         )
+
+        .pc_out( pc_out_if      )
     );
 
 
     // instruction memory
     inst_mem inst_mem_i
     (
-        .addr  ( pc_out         ),
-        .data  ( inst           )
+        .addr  ( pc_out_if      ),
+
+        .data  ( inst_if        )
     );
 
     // ------------------------------------------------------
 
     // IF <-> ID Buffer
+    always_ff @( posedge clk )
+    begin
+        if ( rst )
+        begin
+            pc_out_id <= 0;
+            inst_out  <= 0;
+        end
+        else
+        begin
+            pc_out_id <= pc_out_if; // PC 
+            inst_id   <= inst_if;   // instruction 
+        end
+    end
 
     // --------------------- Instruction Decode ---------------------
 
@@ -89,6 +106,7 @@ module processor
     inst_dec inst_dec_i
     (
         .inst  ( inst           ),
+
         .rs1   ( rs1            ),
         .rs2   ( rs2            ),
         .rd    ( rd             ),
@@ -103,12 +121,13 @@ module processor
     (
         .clk   ( clk            ),
         .rf_en ( rf_en          ),
-        .rd    ( rd             ),
         .rs1   ( rs1            ),
         .rs2   ( rs2            ),
+        .rd    ( rd             ),
+        .wdata ( wdata          ),
+
         .rdata1( rdata1         ),
-        .rdata2( rdata2         ),
-        .wdata ( wdata          )
+        .rdata2( rdata2         )
     );
 
 
@@ -116,6 +135,7 @@ module processor
     imm_gen imm_gen_i
     (
         .inst   ( inst          ),
+        
         .imm_val( imm_val       )
     );
 
@@ -126,6 +146,7 @@ module processor
         .opcode         ( opcode         ),
         .funct3         ( funct3         ),
         .funct7         ( funct7         ),
+
         .br_taken       ( br_taken       ),
         .aluop          ( aluop          ),
         .rf_en          ( rf_en          ),
@@ -155,6 +176,7 @@ module processor
         .in_0           ( pc_out  ),
         .in_1           ( rdata1  ),
         .select_line    ( sel_a   ),
+
         .out            ( opr_a   )
     );
 
@@ -165,6 +187,7 @@ module processor
         .in_0           ( rdata2  ),
         .in_1           ( imm_val ),
         .select_line    ( sel_b   ),
+
         .out            ( opr_b   )
     );
 
@@ -175,6 +198,7 @@ module processor
         .aluop   ( aluop          ),
         .opr_a   ( opr_a          ),
         .opr_b   ( opr_b          ),
+
         .opr_res ( opr_res        )
     );
 
@@ -185,6 +209,7 @@ module processor
         .rdata1   ( rdata1   ),
         .rdata2   ( rdata2   ),
         .br_type  ( br_type  ),
+
         .br_taken ( br_taken )
     );
 
@@ -205,6 +230,7 @@ module processor
         .addr           ( opr_res      ),
         .mem_acc_mode   ( mem_acc_mode ),
         .rdata2         ( rdata2       ),
+
         .rdata          ( rdata        )
     );
 
@@ -222,6 +248,7 @@ module processor
         .csr_wr    ( csr_wr          ),
         .is_mret   ( is_mret         ),
         .inst      ( inst            ),
+
         .rdata     ( csr_rdata       ),
         .epc       ( epc             ),
         .epc_taken ( epc_taken       )
@@ -243,6 +270,7 @@ module processor
         .in_2           ( rdata          ),
         .in_3           ( csr_rdata      ),
         .select_line    ( wb_sel         ),
+        
         .out            ( wdata          )
     );
 
