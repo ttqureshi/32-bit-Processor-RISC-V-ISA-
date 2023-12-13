@@ -5,39 +5,87 @@ module processor
     input logic timer_interrupt
 ); 
     // wires
-    logic        rf_en;
-    logic        sel_b;
     logic [31:0] pc_out;
+    logic [31:0] pc_out_if;
+    logic [31:0] pc_out_id;
+
     logic [31:0] new_pc;
+
     logic [31:0] inst;
+    logic [31:0] inst_if;
+    logic [31:0] inst_id;
+
+
     logic [ 4:0] rd;
     logic [ 4:0] rs1;
     logic [ 4:0] rs2;
     logic [ 6:0] opcode;
     logic [ 2:0] funct3;
     logic [ 6:0] funct7;
+
     logic [31:0] rdata1;
+    logic [31:0] rdata1_id;
+
     logic [31:0] rdata2;
+    logic [31:0] rdata2_id;
+
     logic [31:0] opr_a;
     logic [31:0] opr_b;
     logic [31:0] opr_res;
     logic [11:0] imm;
+
     logic [31:0] imm_val;
+    logic [31:0] imm_val_id;
+
     logic [31:0] wdata;
-    logic [3 :0] aluop;
+
     logic [31:0] rdata;
-    logic        rd_en;
-    logic        wr_en;
-    logic [ 1:0] wb_sel;
+
     logic        br_taken;
-    logic        br_take;
-    logic [ 2:0] br_type;
+    logic        br_taken_id;
+
+    logic [3 :0] aluop;
+    logic [3 :0] aluop_id;
+
+    logic        rf_en;
+    logic        rf_en_id;
+
+    logic        sel_a;
+    logic        sel_a_id;
+
+    logic        sel_b;
+    logic        sel_b_id;
+
+    logic        rd_en;
+    logic        rd_en_id;
+
+    logic        wr_en;
+    logic        wr_en_id;
+
+    logic [ 1:0] wb_sel;
+    logic [ 1:0] wb_sel_id;
+
     logic [ 2:0] mem_acc_mode;
+    logic [ 2:0] mem_acc_mode_id;
+
+    logic [ 2:0] br_type;
+    logic [ 2:0] br_type_id;
+
+    logic        br_take;
+    logic        br_take_id;
+
     logic        csr_rd;
+    logic        csr_rd_id;
+
     logic        csr_wr;
-    logic [31:0] csr_rdata;
-    logic [31:0] epc;
+    logic        csr_wr_id;
+
     logic        is_mret;
+    logic        is_mret_id;
+
+    logic [31:0] csr_rdata;
+
+    logic [31:0] epc;
     logic        epc_taken;
     logic [31:0] epc_pc;
 
@@ -46,11 +94,11 @@ module processor
     // PC MUX
     mux_2x1 mux_2x1_pc
     (
-        .in_0        ( pc_out + 32'd4 ),
-        .in_1        ( opr_res        ),
-        .select_line ( br_take        ),
+        .in_0        ( pc_out_if + 32'd4 ),
+        .in_1        ( opr_res           ),
+        .select_line ( br_take           ),
         
-        .out         ( new_pc         )
+        .out         ( new_pc            )
     );
 
 
@@ -91,7 +139,7 @@ module processor
         if ( rst )
         begin
             pc_out_id <= 0;
-            inst_out  <= 0;
+            inst_id  <= 0;
         end
         else
         begin
@@ -105,7 +153,7 @@ module processor
     // instruction decoder
     inst_dec inst_dec_i
     (
-        .inst  ( inst           ),
+        .inst  ( inst_id        ),
 
         .rs1   ( rs1            ),
         .rs2   ( rs2            ),
@@ -126,41 +174,41 @@ module processor
         .rd    ( rd             ),
         .wdata ( wdata          ),
 
-        .rdata1( rdata1         ),
-        .rdata2( rdata2         )
+        .rdata1( rdata1_id      ),
+        .rdata2( rdata2_id      )
     );
 
 
     // immediate generator
     imm_gen imm_gen_i
     (
-        .inst   ( inst          ),
+        .inst   ( inst_id       ),
         
-        .imm_val( imm_val       )
+        .imm_val( imm_val_id    )
     );
 
 
     // controller
     controller controller_i
     (
-        .opcode         ( opcode         ),
-        .funct3         ( funct3         ),
-        .funct7         ( funct7         ),
+        .opcode         ( opcode            ),
+        .funct3         ( funct3            ),
+        .funct7         ( funct7            ),
 
-        .br_taken       ( br_taken       ),
-        .aluop          ( aluop          ),
-        .rf_en          ( rf_en          ),
-        .sel_a          ( sel_a          ),
-        .sel_b          ( sel_b          ),
-        .rd_en          ( rd_en          ),
-        .wr_en          ( wr_en          ),
-        .wb_sel         ( wb_sel         ),
-        .mem_acc_mode   ( mem_acc_mode   ),
-        .br_type        ( br_type        ),
-        .br_take        ( br_take        ),
-        .csr_rd         ( csr_rd         ),
-        .csr_wr         ( csr_wr         ),
-        .is_mret        ( is_mret        )
+        .br_taken       ( br_taken_id       ),
+        .aluop          ( aluop_id          ),
+        .rf_en          ( rf_en_id          ),
+        .sel_a          ( sel_a_id          ),
+        .sel_b          ( sel_b_id          ),
+        .rd_en          ( rd_en_id          ),
+        .wr_en          ( wr_en_id          ),
+        .wb_sel         ( wb_sel_id         ),
+        .mem_acc_mode   ( mem_acc_mode_id   ),
+        .br_type        ( br_type_id        ),
+        .br_take        ( br_take_id        ),
+        .csr_rd         ( csr_rd_id         ),
+        .csr_wr         ( csr_wr_id         ),
+        .is_mret        ( is_mret_id        )
     );
 
     // ------------------------------------------------------
@@ -270,7 +318,7 @@ module processor
         .in_2           ( rdata          ),
         .in_3           ( csr_rdata      ),
         .select_line    ( wb_sel         ),
-        
+
         .out            ( wdata          )
     );
 
