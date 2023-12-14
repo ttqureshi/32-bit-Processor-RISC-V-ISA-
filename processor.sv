@@ -8,12 +8,14 @@ module processor
     logic [31:0] pc_out;
     logic [31:0] pc_out_if;
     logic [31:0] pc_out_id;
+    logic [31:0] pc_out_ex;
 
     logic [31:0] new_pc;
 
     logic [31:0] inst;
     logic [31:0] inst_if;
     logic [31:0] inst_id;
+    logic [31:0] inst_ex;
 
 
     logic [ 4:0] rd;
@@ -25,17 +27,24 @@ module processor
 
     logic [31:0] rdata1;
     logic [31:0] rdata1_id;
+    logic [31:0] rdata1_ex;
 
     logic [31:0] rdata2;
     logic [31:0] rdata2_id;
+    logic [31:0] rdata2_ex;
 
     logic [31:0] opr_a;
     logic [31:0] opr_b;
+
     logic [31:0] opr_res;
+    logic [31:0] opr_res_ex;
+    logic [31:0] opr_res_mem;
+
     logic [11:0] imm;
 
     logic [31:0] imm_val;
     logic [31:0] imm_val_id;
+    logic [31:0] imm_val_ex;
 
     logic [31:0] wdata;
 
@@ -43,45 +52,59 @@ module processor
 
     logic        br_taken;
     logic        br_taken_id;
+    logic        br_taken_ex;
 
     logic [3 :0] aluop;
     logic [3 :0] aluop_id;
+    logic [3 :0] aluop_ex;
 
     logic        rf_en;
     logic        rf_en_id;
+    logic        rf_en_ex;
 
     logic        sel_a;
     logic        sel_a_id;
+    logic        sel_a_ex;
 
     logic        sel_b;
     logic        sel_b_id;
+    logic        sel_b_ex;
 
     logic        rd_en;
     logic        rd_en_id;
+    logic        rd_en_ex;
 
     logic        wr_en;
     logic        wr_en_id;
+    logic        wr_en_ex;
 
     logic [ 1:0] wb_sel;
     logic [ 1:0] wb_sel_id;
+    logic [ 1:0] wb_sel_ex;
 
     logic [ 2:0] mem_acc_mode;
     logic [ 2:0] mem_acc_mode_id;
+    logic [ 2:0] mem_acc_mode_ex;
 
     logic [ 2:0] br_type;
     logic [ 2:0] br_type_id;
+    logic [ 2:0] br_type_ex;
 
     logic        br_take;
     logic        br_take_id;
+    logic        br_take_ex;
 
     logic        csr_rd;
     logic        csr_rd_id;
+    logic        csr_rd_ex;
 
     logic        csr_wr;
     logic        csr_wr_id;
+    logic        csr_wr_ex;
 
     logic        is_mret;
     logic        is_mret_id;
+    logic        is_mret_ex;
 
     logic [31:0] csr_rdata;
 
@@ -214,6 +237,57 @@ module processor
     // ------------------------------------------------------
 
     // ID <-> EX Buffer
+    always_ff @(posedge clk)
+    begin
+        if ( rst )
+        begin
+            pc_out_ex       <= 0;
+            rdata1_ex       <= 0;
+            rdata2_ex       <= 0;
+            imm_val_ex      <= 0;
+            inst_ex         <= 0;
+
+            // control signals
+            br_taken_ex     <= 0;
+            aluop_ex        <= 0;
+            rf_en_ex        <= 0;
+            sel_a_ex        <= 0;
+            sel_b_ex        <= 0;
+            rd_en_ex        <= 0;
+            wr_en_ex        <= 0;
+            wb_sel_ex       <= 0;
+            mem_acc_mode_ex <= 0;
+            br_type_ex      <= 0;
+            br_take_ex      <= 0;
+            csr_rd_ex       <= 0;
+            csr_wr_ex       <= 0;
+            is_mret_ex      <= 0;
+        end
+        else
+        begin
+            pc_out_ex       <= pc_out_id;
+            rdata1_ex       <= rdata1_id;
+            rdata2_ex       <= rdata2_id;
+            imm_val_ex      <= imm_val_id;
+            inst_ex         <= inst_id;
+
+            // control signals
+            br_taken_ex     <= br_taken_id;
+            aluop_ex        <= aluop_id;
+            rf_en_ex        <= rf_en_id;
+            sel_a_ex        <= sel_a_id;
+            sel_b_ex        <= sel_b_id;
+            rd_en_ex        <= rd_en_id;
+            wr_en_ex        <= wr_en_id;
+            wb_sel_ex       <= wb_sel_id;
+            mem_acc_mode_ex <= mem_acc_mode_id;
+            br_type_ex      <= br_type_id;
+            br_take_ex      <= br_take_id;
+            csr_rd_ex       <= csr_rd_id;
+            csr_wr_ex       <= csr_wr_id;
+            is_mret_ex      <= is_mret_id;
+        end
+    end
 
 
     // --------------------- Execute ---------------------
@@ -221,42 +295,42 @@ module processor
     // ALU opr_a MUX
     mux_2x1 mux_2x1_alu_opr_a
     (
-        .in_0           ( pc_out  ),
-        .in_1           ( rdata1  ),
-        .select_line    ( sel_a   ),
+        .in_0           ( pc_out_ex  ),
+        .in_1           ( rdata1_ex  ),
+        .select_line    ( sel_a_ex   ),
 
-        .out            ( opr_a   )
+        .out            ( opr_a      )
     );
 
 
     // ALU opr_b MUX
     mux_2x1 mux_2x1_alu_opr_b
     (
-        .in_0           ( rdata2  ),
-        .in_1           ( imm_val ),
-        .select_line    ( sel_b   ),
+        .in_0           ( rdata2_ex  ),
+        .in_1           ( imm_val_ex ),
+        .select_line    ( sel_b_ex   ),
 
-        .out            ( opr_b   )
+        .out            ( opr_b      )
     );
 
 
     // alu
     alu alu_i
     (
-        .aluop   ( aluop          ),
+        .aluop   ( aluop_ex       ),
         .opr_a   ( opr_a          ),
         .opr_b   ( opr_b          ),
 
-        .opr_res ( opr_res        )
+        .opr_res ( opr_res_ex     )
     );
 
 
     // br_cond
     br_cond br_cond_i
     (
-        .rdata1   ( rdata1   ),
-        .rdata2   ( rdata2   ),
-        .br_type  ( br_type  ),
+        .rdata1   ( rdata1_ex   ),
+        .rdata2   ( rdata2_ex   ),
+        .br_type  ( br_type_ex  ),
 
         .br_taken ( br_taken )
     );
