@@ -5,15 +5,17 @@ module processor
     input logic timer_interrupt
 ); 
     // wires
-    logic [31:0] pc_out;
+    
+    // pc
     logic [31:0] pc_out_if;
     logic [31:0] pc_out_id;
     logic [31:0] pc_out_ex;
     logic [31:0] pc_out_mem;
+    logic [31:0] pc_out_wb;
 
     logic [31:0] new_pc;
 
-    logic [31:0] inst;
+    // inst
     logic [31:0] inst_if;
     logic [31:0] inst_id;
     logic [31:0] inst_ex;
@@ -26,12 +28,12 @@ module processor
     logic [ 2:0] funct3;
     logic [ 6:0] funct7;
 
-    logic [31:0] rdata1;
+    // rdata1
     logic [31:0] rdata1_id;
     logic [31:0] rdata1_ex;
     logic [31:0] rdata1_mem;
 
-    logic [31:0] rdata2;
+    // rdata2
     logic [31:0] rdata2_id;
     logic [31:0] rdata2_ex;
     logic [31:0] rdata2_mem;
@@ -39,94 +41,103 @@ module processor
     logic [31:0] opr_a;
     logic [31:0] opr_b;
 
-    logic [31:0] opr_res;
+    // opr_res
+    logic [31:0] opr_res_if;
     logic [31:0] opr_res_ex;
     logic [31:0] opr_res_mem;
+    logic [31:0] opr_res_wb;
 
     logic [11:0] imm;
 
-    logic [31:0] imm_val;
+    // imm_val
     logic [31:0] imm_val_id;
     logic [31:0] imm_val_ex;
     logic [31:0] imm_val_mem;
 
-    logic [31:0] wdata;
+    // wdata
     logic [31:0] wdata_id;
+    logic [31:0] wdata_wb;
 
-    logic [31:0] rdata;
+    // rdata
     logic [31:0] rdata_mem;
+    logic [31:0] rdata_wb;
 
-    logic        br_taken;
+    // br_taken
     logic        br_taken_id;
     logic        br_taken_ex;
 
-    logic [3 :0] aluop;
+    // aluop
     logic [3 :0] aluop_id;
     logic [3 :0] aluop_ex;
 
-    logic        rf_en;
+    // rf_en_id
     logic        rf_en_id;
     logic        rf_en_ex;
     logic        rf_en_mem;
+    logic        rf_en_wb;
 
-    logic        sel_a;
+    // sel_a
     logic        sel_a_id;
     logic        sel_a_ex;
 
-    logic        sel_b;
+    // sel_b
     logic        sel_b_id;
     logic        sel_b_ex;
 
-    logic        rd_en;
+    // rd_en
     logic        rd_en_id;
     logic        rd_en_ex;
     logic        rd_en_mem;
 
-    logic        wr_en;
+    // wr_en
     logic        wr_en_id;
     logic        wr_en_ex;
     logic        wr_en_mem;
 
-    logic [ 1:0] wb_sel;
+    // wb_sel
     logic [ 1:0] wb_sel_id;
     logic [ 1:0] wb_sel_ex;
     logic [ 1:0] wb_sel_mem;
+    logic [ 1:0] wb_sel_wb;
 
-    logic [ 2:0] mem_acc_mode;
+    // mem_acc_mode
     logic [ 2:0] mem_acc_mode_id;
     logic [ 2:0] mem_acc_mode_ex;
     logic [ 2:0] mem_acc_mode_mem;
 
-    logic [ 2:0] br_type;
+    // br_type
     logic [ 2:0] br_type_id;
     logic [ 2:0] br_type_ex;
 
-    logic        br_take;
+    // br_take
     logic        br_take_if;
     logic        br_take_id;
 
-    logic        csr_rd;
+    // csr_rd
     logic        csr_rd_id;
     logic        csr_rd_ex;
     logic        csr_rd_mem;
 
-    logic        csr_wr;
+    // csr_wr
     logic        csr_wr_id;
     logic        csr_wr_ex;
     logic        csr_wr_mem;
 
-    logic        is_mret;
+    // is_mret
     logic        is_mret_id;
     logic        is_mret_ex;
     logic        is_mret_mem;
 
-    logic [31:0] csr_rdata;
+    // csr_rdata
     logic [31:0] csr_rdata_mem;
+    logic [31:0] csr_rdata_wb;
 
-    logic [31:0] epc;
+    // epc
+    logic [31:0] epc_if;
     logic [31:0] epc_mem;
 
-    logic        epc_taken;
+    // epc_taken
+    logic        epc_taken_if;
     logic        epc_taken_mem;
 
     logic [31:0] epc_pc;
@@ -137,7 +148,7 @@ module processor
     mux_2x1 mux_2x1_pc
     (
         .in_0        ( pc_out_if + 32'd4 ),
-        .in_1        ( opr_res           ),
+        .in_1        ( opr_res_if        ),
         .select_line ( br_take_if        ),
         
         .out         ( new_pc            )
@@ -146,11 +157,11 @@ module processor
 
     mux_2x1 mux_2x1_epc
     (
-        .in_0        ( new_pc    ),
-        .in_1        ( epc       ),
-        .select_line ( epc_taken ),
+        .in_0        ( new_pc       ),
+        .in_1        ( epc_if       ),
+        .select_line ( epc_taken_if ),
         
-        .out         ( epc_pc    ) 
+        .out         ( epc_pc       ) 
     );
 
 
@@ -210,7 +221,7 @@ module processor
     reg_file reg_file_i
     (
         .clk   ( clk            ),
-        .rf_en ( rf_en          ),
+        .rf_en ( rf_en_wb       ),
         .rs1   ( rs1            ),
         .rs2   ( rs2            ),
         .rd    ( rd             ),
@@ -360,7 +371,7 @@ module processor
     // ------------------------------------------------------
 
     // EX <-> MEM Buffer
-    always_ff
+    always_ff @( posedge clk )
     begin
         if ( rst )
         begin
@@ -448,7 +459,39 @@ module processor
     // ------------------------------------------------------
 
     // MEM <-> WB Buffer
-    
+    always_ff @( posedge clk )
+    begin
+        if( rst )
+        begin
+            pc_out_wb    <= 0;
+            opr_res_wb   <= 0;
+            rdata_wb     <= 0;
+            csr_rdata_wb <= 0;
+
+            // control signals
+            rf_en_wb     <= 0;
+            wb_sel_wb    <= 0;
+        end
+        else
+        begin
+            pc_out_wb    <= pc_out_mem;
+            opr_res_wb   <= opr_res_mem;
+            rdata_wb     <= rdata_mem;
+            csr_rdata_wb <= csr_rdata_mem;
+
+            // control signals
+            rf_en_wb     <= rf_en_mem;
+            wb_sel_wb    <= wb_sel_mem;
+        end
+    end
+
+    // Feedback to IF stage
+    always_comb
+    begin
+        epc_if       = epc_mem;
+        epc_taken_if = epc_taken_mem;
+        opr_res_if   = opr_res_mem;
+    end
 
     // --------------------- Write Back ---------------------
 
@@ -456,19 +499,21 @@ module processor
     // Writeback selection MUX
     mux_4x1 wb_mux
     (
-        .in_0           ( pc_out + 32'd4 ),
-        .in_1           ( opr_res        ),
-        .in_2           ( rdata          ),
-        .in_3           ( csr_rdata      ),
-        .select_line    ( wb_sel         ),
+        .in_0           ( pc_out_wb + 32'd4 ),
+        .in_1           ( opr_res_wb        ),
+        .in_2           ( rdata_wb          ),
+        .in_3           ( csr_rdata_wb      ),
+        .select_line    ( wb_sel_wb         ),
 
-        .out            ( wdata          )
+        .out            ( wdata_wb          )
     );
 
     // ------------------------------------------------------
 
     // Feedback from WB to ID
+    always_comb
+    begin
+        wdata_id = wdata_wb;
+    end
 
-
-    
 endmodule
