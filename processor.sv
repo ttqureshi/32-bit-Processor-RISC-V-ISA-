@@ -20,7 +20,9 @@ module processor
     logic [31:0] inst_id;
     logic [31:0] inst_ex;
     logic [31:0] inst_mem;
+    logic [31:0] inst_wb;
 
+    logic [ 4:0] waddr;
     logic [ 4:0] rd;
     logic [ 4:0] rs1;
     logic [ 4:0] rs2;
@@ -224,7 +226,7 @@ module processor
         .rf_en ( rf_en_wb       ),
         .rs1   ( rs1            ),
         .rs2   ( rs2            ),
-        .rd    ( rd             ),
+        .rd    ( waddr             ),
         .wdata ( wdata_id       ),
 
         .rdata1( rdata1_id      ),
@@ -467,6 +469,7 @@ module processor
             opr_res_wb   <= 0;
             rdata_wb     <= 0;
             csr_rdata_wb <= 0;
+            inst_wb      <= 0;
 
             // control signals
             rf_en_wb     <= 0;
@@ -478,6 +481,7 @@ module processor
             opr_res_wb   <= opr_res_mem;
             rdata_wb     <= rdata_mem;
             csr_rdata_wb <= csr_rdata_mem;
+            inst_wb      <= inst_mem;
 
             // control signals
             rf_en_wb     <= rf_en_mem;
@@ -514,6 +518,7 @@ module processor
     always_comb
     begin
         wdata_id = wdata_wb;
+        waddr     = inst_wb[11:7];
     end
 
 endmodule
